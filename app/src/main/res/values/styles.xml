@@ -1,20 +1,20 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Custom.Solid" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:textColorHint">@color/hint_color</item>
+    <style name="Custom.Solid" parent="Theme.AppCompat">
+        <item name="android:textColorHint">@color/hint</item>
         <item name="android:statusBarColor">@android:color/black</item>
         <item name="android:navigationBarColor">@android:color/black</item>
     </style>
 
-    <style name="Custom.SystemWP" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Custom.SystemWP" parent="Theme.AppCompat">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowShowWallpaper">true</item>
-        <item name="android:textColorHint">@color/hint_color</item>
+        <item name="android:textColorHint">@color/hint</item>
         <item name="android:statusBarColor">@android:color/black</item>
         <item name="android:navigationBarColor">@android:color/black</item>
     </style>
 
-    <style name="Theme.AppCompat.Light.NoActionBar.FullScreen" parent="@style/Theme.AppCompat.Light">
+    <style name="Theme.AppCompat.Light.NoActionBar.FullScreen" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>
@@ -24,7 +24,7 @@
     <style name="ToolsBar">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">@integer/tools_view_weight</item>
+        <item name="android:layout_weight">@integer/toolbar_weight</item>
         <item name="android:background">@null</item>
         <item name="android:scaleType">fitCenter</item>
     </style>
@@ -37,5 +37,8 @@
         <item name="android:windowIsTranslucent">false</item>
         <item name="android:backgroundDimEnabled">false</item>
     </style>
+
+    <!-- 🔑 Added for build fix -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar.FullScreen" />
 
 </resources>
