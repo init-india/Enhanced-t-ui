@@ -1,55 +1,63 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
+
 android {
-    compileSdkVersion 27
-    buildToolsVersion '28.0.3'
-    dexOptions {
-    }
+    namespace "ohi.andre.consolelauncher"
+    compileSdkVersion 33
+    buildToolsVersion "33.0.2"
 
     defaultConfig {
         applicationId "ohi.andre.consolelauncher"
-
-        minSdkVersion 14
-        targetSdkVersion 27
-        flavorDimensions "default"
-
-        versionName "v6.15"
+        minSdkVersion 21
+        targetSdkVersion 33
         versionCode 205
+        versionName "v6.15"
+        flavorDimensions "default"
     }
+
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             zipAlignEnabled true
         }
+        debug {
+            minifyEnabled false
+            shrinkResources false
+        }
     }
+
     productFlavors {
-        fdroid {
-        }
-        playstore {
-        }
+        fdroid { }
+        playstore { }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    dependencies {
-        implementation 'com.android.support:appcompat-v7:27.1.1'
-    }
-    lintOptions {
+
+    lint {
         checkReleaseBuilds false
     }
-    android.applicationVariants.all { variant ->
-        def formattedDate = new Date().format('hh.mm')
 
-        variant.outputs.all {
-            outputFileName = "./${variant.versionName}/${variant.applicationId}_${variant.getFlavorName()}_${variant.versionCode}_${formattedDate}.apk"
+    // ✅ Custom APK naming
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def formattedDate = new Date().format('HHmm')
+            outputFileName = "${variant.name}-${variant.versionName}-${formattedDate}.apk"
         }
     }
 }
+
 dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core:1.9.0'
+
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
-    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.6'
+    implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.21'
     implementation 'com.jayway.jsonpath:json-path:2.4.0'
     implementation 'org.jsoup:jsoup:1.11.3'
     implementation 'it.andreuzzi:CompareString2:1.0.9'

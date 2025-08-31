@@ -28,4 +28,9 @@ target/
 *.properties
 app/app.iml
 
-*.md
+*.mdbuild/
+.gradle/
+local.properties
+captures/
+*.iml
+.idea/
