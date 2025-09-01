@@ -1,16 +1,16 @@
 package ohi.andre.consolelauncher.commands.main.raw;
 
 import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import ohi.andre.consolelauncher.R;
 import ohi.andre.consolelauncher.UIManager;
 import ohi.andre.consolelauncher.commands.CommandAbstraction;
 import ohi.andre.consolelauncher.commands.ExecutePack;
 import ohi.andre.consolelauncher.commands.main.MainPack;
-import ohi.andre.consolelauncher.commands.main.specific.ParamCommand;
+import ohi.andre.consolelauncher.commands.main.ParamCommand;
 import ohi.andre.consolelauncher.managers.xml.XMLPrefsManager;
-import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsSave;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsSave;
 import ohi.andre.consolelauncher.managers.xml.options.Behavior;
 import ohi.andre.consolelauncher.managers.xml.options.Ui;
 import ohi.andre.consolelauncher.tuils.Tuils;
@@ -27,26 +27,23 @@ public class tuiweather extends ParamCommand {
         update {
             @Override
             public String exec(ExecutePack pack) {
-                if(!XMLPrefsManager.getBoolean(Ui.show_weather)) {
+                if (!XMLPrefsManager.getBoolean(Ui.show_weather)) {
                     return pack.context.getString(R.string.weather_disabled);
-                } else if(!XMLPrefsManager.wasChanged(Behavior.weather_key, false)) {
-                    return pack.context.getString(R.string.weather_cant_update);
+                } else if (!XMLPrefsManager.wasChanged(Ui.weather_updated)) {
+                    return pack.context.getString(R.string.weather_not_updated);
                 } else {
-                    LocalBroadcastManager.getInstance(pack.context.getApplicationContext()).sendBroadcast(new Intent(UIManager.ACTION_WEATHER_MANUAL_UPDATE));
+                    LocalBroadcastManager.getInstance(pack.context).sendBroadcast(new Intent(UIManager.ACTION_UPDATE_WEATHER));
+                    return null;
                 }
-
-                return null;
             }
         },
         enable {
             @Override
             public String exec(ExecutePack pack) {
                 XMLPrefsSave save = Ui.show_weather;
-
                 save.parent().write(save, "true");
-                ((Reloadable) pack.context).addMessage(save.parent().path(), save.label() + " -> " + "true");
+                ((Reloadable) pack.context).addMessage(null, pack.context.getString(R.string.weather_enabled));
                 ((Reloadable) pack.context).reload();
-
                 return null;
             }
         },
@@ -54,25 +51,23 @@ public class tuiweather extends ParamCommand {
             @Override
             public String exec(ExecutePack pack) {
                 XMLPrefsSave save = Ui.show_weather;
-
                 save.parent().write(save, "false");
-                ((Reloadable) pack.context).addMessage(save.parent().path(), save.label() + " -> " + "false");
+                ((Reloadable) pack.context).addMessage(null, pack.context.getString(R.string.weather_disabled));
                 ((Reloadable) pack.context).reload();
-
                 return null;
             }
         },
         tutorial {
             @Override
             public String exec(ExecutePack pack) {
-                pack.context.startActivity(Tuils.webPage("https://github.com/Andre1299/TUI-ConsoleLauncher/wiki/Weather/_edit"));
+                pack.context.startActivity(Tuils.webPageIntent(pack.context.getString(R.string.url_weather_tutorial)));
                 return null;
             }
         },
         set_key {
             @Override
             public int[] args() {
-                return new int[] {CommandAbstraction.PLAIN_TEXT};
+                return new int[]{CommandAbstraction.TEXT};
             }
 
             @Override
@@ -84,21 +79,18 @@ public class tuiweather extends ParamCommand {
 
         static Param get(String p) {
             p = p.toLowerCase();
-            Param[] ps = values();
-            for (Param p1 : ps)
-                if (p.endsWith(p1.label()))
-                    return p1;
+            for (Param param : values())
+                if (p.endsWith(param.label()))
+                    return param;
             return null;
         }
 
         static String[] labels() {
             Param[] ps = values();
             String[] ss = new String[ps.length];
-
-            for (int count = 0; count < ps.length; count++) {
-                ss[count] = ps[count].label();
+            for (int i = 0; i < ps.length; i++) {
+                ss[i] = ps[i].label();
             }
-
             return ss;
         }
 
@@ -113,13 +105,13 @@ public class tuiweather extends ParamCommand {
         }
 
         @Override
-        public String onNotArgEnough(ExecutePack pack, int n) {
-            return pack.context.getString(R.string.help_shortcut);
+        public String onNotArgEnough(ExecutePack pack) {
+            return pack.context.getString(R.string.help_weather);
         }
 
         @Override
-        public String onArgNotFound(ExecutePack pack, int index) {
-            return pack.context.getString(R.string.output_appnotfound);
+        public String onArgNotFound(ExecutePack pack, String arg) {
+            return pack.context.getString(R.string.output_invalid_arg);
         }
     }
 
