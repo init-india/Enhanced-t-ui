@@ -5,10 +5,10 @@ import android.os.Build;
 
 import ohi.andre.consolelauncher.BuildConfig;
 import ohi.andre.consolelauncher.R;
+import ohi.andre.consolelauncher.commands.APICommand;
 import ohi.andre.consolelauncher.commands.CommandAbstraction;
 import ohi.andre.consolelauncher.commands.ExecutePack;
 import ohi.andre.consolelauncher.commands.main.MainPack;
-import ohi.andre.consolelauncher.commands.main.specific.APICommand;
 import ohi.andre.consolelauncher.managers.TuiLocationManager;
 
 /**
@@ -17,42 +17,16 @@ import ohi.andre.consolelauncher.managers.TuiLocationManager;
 
 public class location implements APICommand, CommandAbstraction {
 
-    public static String ACTION_LOCATION_CMD_GOT = BuildConfig.APPLICATION_ID + ".loc_cmd_location";
+    public static final String ACTION_LOCATION_CMD_GOT = BuildConfig.APPLICATION_ID + ".LOCATION_CMD_GOT";
 
     @Override
-    public String exec(final ExecutePack pack) throws Exception {
+    public String exec(final ExecutePack pack) {
         final Context context = ((MainPack) pack).context;
 
-//        if(handler != null) handler = new Handler();
-//
-//        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-//                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LauncherActivity.COMMAND_REQUEST_PERMISSION);
-//            return context.getString(R.string.output_waitingpermission);
-//        }
-
-//        Location l = Tuils.getLocation(pack.context);
-//        if(l != null) {
-//            Tuils.sendOutput(context, "Lat: " + l.getLatitude() + "; Long: " + l.getLongitude());
-//        } else {
-//            Tuils.sendOutput(pack.context, R.string.location_error);
-//        }
-//
-//                , new Tuils.ArgsRunnable() {
-//            @Override
-//            public void run() {
-//                Tuils.sendOutput(context, "Lat: " + get(int.class, 0) + "; Long: " + get(int.class, 1));
-//            }
-//        }, new Runnable() {
-//            @Override
-//            public void run() {
-//                Tuils.sendOutput(pack.context, R.string.location_error);
-//            }
-//        }, handler);
-
         TuiLocationManager l = TuiLocationManager.instance(context);
-        if(l.locationAvailable) return "Lat: " + l.latitude + "; Long: " + l.longitude;
-        else {
+        if (l.locationAvailable) {
+            return "Lat: " + l.lat + "  Lng: " + l.lng;
+        } else {
             l.add(ACTION_LOCATION_CMD_GOT);
         }
 
@@ -75,12 +49,12 @@ public class location implements APICommand, CommandAbstraction {
     }
 
     @Override
-    public String onArgNotFound(ExecutePack pack, int indexNotFound) {
+    public String onArgNotFound(ExecutePack pack, int index) {
         return null;
     }
 
     @Override
-    public String onNotArgEnough(ExecutePack pack, int nArgs) {
+    public String onNotArgEnough(ExecutePack pack, int n) {
         return null;
     }
 
