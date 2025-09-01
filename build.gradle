@@ -1,23 +1,13 @@
+// Top-level build file
+
 buildscript {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url "https://jitpack.io" }
-    }
     dependencies {
         classpath "com.android.tools.build:gradle:8.0.2"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.10"
     }
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url "https://jitpack.io" }
-    }
-}
-
+// No repositories block here
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
