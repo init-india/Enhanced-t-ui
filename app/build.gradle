@@ -1,6 +1,5 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android' apply false
 }
 
 android {
@@ -31,8 +30,12 @@ android {
     }
 
     productFlavors {
-        fdroid { }        // Minimal flavor, avoids proprietary libs
-        playstore { }     // Full-feature flavor
+        fdroid { 
+            // Minimal flavor: avoids proprietary libraries
+        }
+        playstore { 
+            // Full-feature flavor
+        }
     }
 
     compileOptions {
@@ -59,12 +62,12 @@ dependencies {
     implementation 'androidx.core:core:1.10.1'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     implementation 'it.andreuzzi:CompareString2:1.0.9'
-    implementation 'org.jsoup:jsoup:1.15.4'  // F-Droid compatible
+    implementation 'org.jsoup:jsoup:1.15.4' // F-Droid compatible HTML parser
 
     // Playstore-only dependencies
     playstoreImplementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.2.0'
     playstoreImplementation 'com.jayway.jsonpath:json-path:2.4.0'
-    playstoreImplementation 'com.google.api-client:google-api-client:1.34.0'
+    playstoreImplementation 'com.google.api-client:google-api-client:1.34.0' // Gmail API
     playstoreImplementation 'com.google.android.gms:play-services-maps:18.1.0'
     playstoreImplementation 'androidx.work:work-runtime:2.8.1'
 }
