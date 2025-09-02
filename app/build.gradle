@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -31,48 +32,28 @@ android {
     }
 
     productFlavors {
-        fdroid {
-            // Minimal flavor for F-Droid, avoids proprietary libraries
-        }
-        playstore {
-            // Full flavor for Play Store
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-
-    lint {
-        checkReleaseBuilds false
-    }
-
-    // Custom APK naming
-    applicationVariants.all { variant ->
-        variant.outputs.all { output ->
-            def formattedDate = new Date().format('HHmmss')
-            outputFileName = "${variant.name}-${variant.versionName}-${formattedDate}.apk"
-        }
+        fdroid { }
+        playstore { }
     }
 }
 
 dependencies {
-    // Common dependencies
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.core:core:1.10.1'
-    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
-    implementation 'it.andreuzzi:CompareString2:1.0.9'
-    implementation 'org.jsoup:jsoup:1.15.4'
+    implementation "androidx.core:core-ktx:1.10.1"
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "com.google.android.material:material:1.9.0"
+    implementation "androidx.legacy:legacy-support-v4:1.0.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.1"
 
-    // Play Store only dependencies
-    playstoreImplementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.2.0'
-    playstoreImplementation 'com.jayway.jsonpath:json-path:2.4.0'
-    playstoreImplementation 'com.google.api-client:google-api-client:1.34.0'
-    playstoreImplementation 'com.google.android.gms:play-services-maps:18.1.0'
-    playstoreImplementation 'androidx.work:work-runtime:2.8.1'
+    // Room DB
+    implementation "androidx.room:room-runtime:2.5.1"
+    implementation "androidx.room:room-ktx:2.5.1"
+    kapt "androidx.room:room-compiler:2.5.1"
+
+    // Email (JavaMail for Android)
+    implementation "com.sun.mail:android-mail:1.6.7"
+    implementation "com.sun.mail:android-activation:1.6.7"
+
+    // Google Maps & Location
+    implementation "com.google.android.gms:play-services-maps:18.1.0"
+    implementation "com.google.android.gms:play-services-location:21.0.1"
 }
