@@ -44,14 +44,18 @@ dependencies {
     // SMS, Calls, Contacts
     implementation "androidx.legacy:legacy-support-v4:1.0.0"
 
+    // Annotation + LocalBroadcastManager (fix for android.support.* errors)
+    implementation "androidx.annotation:annotation:1.7.1"
+    implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.1.0"
+
     // Networking
     implementation "com.squareup.okhttp3:okhttp:4.11.0"
 
     // JSON parsing
     implementation "com.jayway.jsonpath:json-path:2.8.0"
 
-    // String comparison utils
-
     // Logging
     implementation "org.slf4j:slf4j-api:2.0.9"
+
+    // String comparison utils (we’ll add manual classes instead of JitPack)
 }
