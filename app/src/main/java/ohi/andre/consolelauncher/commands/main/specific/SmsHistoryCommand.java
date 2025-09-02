@@ -45,7 +45,7 @@ public class SmsHistoryCommand implements CommandAbstraction {
         ArrayList<String> lines = new ArrayList<>();
         ContentResolver cr = ctx.getContentResolver();
 
-        Uri uri = Uri.parse("content://sms"); // inbox+sent
+        Uri uri = Uri.parse("content://sms"); // inbox and sent
         String selection = null;
         String[] selectionArgs = null;
         if (!TextUtils.isEmpty(query)) {
@@ -53,40 +53,45 @@ public class SmsHistoryCommand implements CommandAbstraction {
             selectionArgs = new String[]{"%" + query + "%"};
         }
 
-        Cursor c = cr.query(uri,
+        Cursor c = cr.query(
+                uri,
                 new String[]{"address", "date", "body", "type"},
                 selection,
                 selectionArgs,
-                "date DESC LIMIT 100");
+                "date DESC LIMIT 100"
+        );
 
         if (c == null) {
-            return "No SMS provider available or SMS permission missing.";
+            return "No SMS provider available or SMS access denied.";
         }
 
-        DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault());
+        DateFormat df = DateFormat.getDateTimeInstance();
         int count = 0;
         while (c.moveToNext() && count < 100) {
             String address = c.getString(c.getColumnIndexOrThrow("address"));
             long date = c.getLong(c.getColumnIndexOrThrow("date"));
             String body = c.getString(c.getColumnIndexOrThrow("body"));
-            int type = c.getInt(c.getColumnIndexOrThrow("type")); // 1=inbox,2=sent
+            int type = c.getInt(c.getColumnIndexOrThrow("type"));
 
             String contact = resolveContactName(ctx, address);
-            String dir = (type == 2) ? "SENT → " : "RECV ← ";
+            String dir = (type == 2) ? "SENT → " : "Rcvd ← ";
 
-            String line = String.format(Locale.getDefault(),
+            String line = String.format(
+                    Locale.getDefault(),
                     "%d) %s%s\n    %s\n    (%s)",
                     ++count,
                     dir,
                     contact != null ? contact : address,
                     truncate(body, 160),
-                    df.format(new Date(date)));
+                    df.format(new Date(date))
+            );
 
             lines.add(line);
         }
         c.close();
 
-        if (lines.isEmpty()) return "No SMS found (or permission missing).";
+        if (lines.isEmpty()) return "No SMS found (or access denied).";
+
         StringBuilder out = new StringBuilder();
         for (String l : lines) {
             out.append(l).append("\n\n");
@@ -104,10 +109,13 @@ public class SmsHistoryCommand implements CommandAbstraction {
         if (number == null) return null;
         Uri uri = Uri.withAppendedPath(
                 ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
-                Uri.encode(number));
-        Cursor c = ctx.getContentResolver().query(uri,
+                Uri.encode(number)
+        );
+        Cursor c = ctx.getContentResolver().query(
+                uri,
                 new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME},
-                null, null, null);
+                null, null, null
+        );
         if (c != null) {
             if (c.moveToFirst()) {
                 String name = c.getString(0);
@@ -126,6 +134,6 @@ public class SmsHistoryCommand implements CommandAbstraction {
 
     @Override
     public String getHelp() {
-        return "sms history [contact|number] - show recent SMS threads (inbox & sent).";
+        return "sms history [contact|number] - show recent SMS messages, optionally filtered by contact or number";
     }
 }

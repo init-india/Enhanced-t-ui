@@ -22,10 +22,9 @@ public class SmsReceiver extends BroadcastReceiver {
 
         for (Object pdu : pdus) {
             SmsMessage sms = SmsMessage.createFromPdu((byte[]) pdu);
-            String sender = sms.getOriginatingAddress();
+            String sender = sms.getDisplayOriginatingAddress();
             String body = sms.getMessageBody();
-
-            manager.push("New SMS from " + sender + ": " + body);
+            manager.push("SMS from " + sender + ": " + body);
         }
     }
 }
