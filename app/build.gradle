@@ -1,18 +1,17 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
 }
 
 android {
     namespace "ohi.andre.consolelauncher"
-    compileSdkVersion 33
+    compileSdk 33
     buildToolsVersion "33.0.2"
 
     defaultConfig {
         applicationId "ohi.andre.consolelauncher"
-        minSdkVersion 21
-        targetSdkVersion 33
+        minSdk 21
+        targetSdk 33
         versionCode 205
         versionName "v6.15"
         flavorDimensions "default"
@@ -22,7 +21,7 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             zipAlignEnabled true
         }
         debug {
@@ -41,19 +40,19 @@ dependencies {
     implementation "androidx.core:core-ktx:1.10.1"
     implementation "androidx.appcompat:appcompat:1.6.1"
     implementation "com.google.android.material:material:1.9.0"
+
+    // SMS, Calls, Contacts
     implementation "androidx.legacy:legacy-support-v4:1.0.0"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.1"
 
-    // Room DB
-    implementation "androidx.room:room-runtime:2.5.1"
-    implementation "androidx.room:room-ktx:2.5.1"
-    kapt "androidx.room:room-compiler:2.5.1"
+    // Networking
+    implementation "com.squareup.okhttp3:okhttp:4.11.0"
 
-    // Email (JavaMail for Android)
-    implementation "com.sun.mail:android-mail:1.6.7"
-    implementation "com.sun.mail:android-activation:1.6.7"
+    // JSON parsing
+    implementation "com.jayway.jsonpath:json-path:2.8.0"
 
-    // Google Maps & Location
-    implementation "com.google.android.gms:play-services-maps:18.1.0"
-    implementation "com.google.android.gms:play-services-location:21.0.1"
+    // String comparison utils
+    implementation "com.github.AdeZwart:CompareString2:1.0.0"
+
+    // Logging
+    implementation "org.slf4j:slf4j-api:2.0.9"
 }
