@@ -51,7 +51,6 @@ dependencies {
     implementation "com.jayway.jsonpath:json-path:2.8.0"
 
     // String comparison utils
-    implementation "com.github.AdeZwart:CompareString2:1.0.0"
 
     // Logging
     implementation "org.slf4j:slf4j-api:2.0.9"
