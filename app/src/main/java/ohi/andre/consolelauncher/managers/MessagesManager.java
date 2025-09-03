@@ -1,140 +1,156 @@
 package ohi.andre.consolelauncher.managers;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Handler;
-
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.telephony.SmsManager;
+import android.telephony.SmsMessage;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
-import ohi.andre.consolelauncher.R;
-import ohi.andre.consolelauncher.managers.xml.XMLPrefsManager;
-import ohi.andre.consolelauncher.managers.xml.options.Theme;
 import ohi.andre.consolelauncher.tuils.Tuils;
-
-/**
- * Created by francescoandreuzzi on 31/08/2017.
- */
 
 public class MessagesManager {
 
-    private static final String PREFS_NAME = "tutorial", NEED_TUTORIAL_KEY = "needTutorial", LAST_TUTORIAL_COUNT = "lastTutorialCount";
-
-    final String MARKER = "---------------";
-
-    boolean donate = false;
-    final int REACH_THIS = 20;
-
-    List<String> original;
-    List<String> copy;
-
-    int count;
-    Random random;
-
-    Context context;
-    int color;
-
-    boolean tutorialMode;
-
-    final int delay = 100;
-    Handler handler = new Handler();
-    Runnable post = this::tryPrint;
+    private final Context context;
+    private final Vibrator vibrator;
+    private final HashMap<String, List<SMS>> smsHistory; // contactName -> list of SMS
+    private boolean cliUnlocked = false; // simulation of CLI unlock / biometric auth
 
     public MessagesManager(Context context) {
         this.context = context;
+        this.vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        this.smsHistory = new HashMap<>();
+    }
 
-        color = XMLPrefsManager.getColor(Theme.hint_color);
+    // Represents an individual SMS
+    public static class SMS {
+        public final String sender;
+        public final String message;
+        public final long timestamp;
+        public boolean viewed;
 
-        tutorialMode = isShowingFirstTimeTutorial(context);
-        if(tutorialMode) {
-            SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, 0);
-            count = preferences.getInt(LAST_TUTORIAL_COUNT, 0);
+        public SMS(String sender, String message) {
+            this.sender = sender;
+            this.message = message;
+            this.timestamp = System.currentTimeMillis();
+            this.viewed = false;
+        }
 
-            String[] hints = context.getResources().getStringArray(R.array.tutorial);
-            original = Arrays.asList(hints);
+        public String firstLine() {
+            String[] lines = message.split("\n");
+            return lines.length > 0 ? lines[0] : message;
+        }
 
-            SharedPreferences.Editor editor = preferences.edit();
-            if(count < hints.length) {
-                Tuils.sendOutput(color, context, original.get(count));
-                editor.putInt(LAST_TUTORIAL_COUNT, ++count).apply();
-            }
-            else editor.putBoolean(NEED_TUTORIAL_KEY, false).apply();
-        } else {
-            String[] hints = context.getResources().getStringArray(R.array.hints);
+        public String fullMessage() {
+            return message;
+        }
 
-            original = Arrays.asList(hints);
-            copy = new ArrayList<>(original);
-
-            count = 0;
-            random = new Random();
+        public String timeString() {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            return sdf.format(new Date(timestamp));
         }
     }
 
-    public void afterCmd() {
-//        because otherwise we would risk to print this before a command. we want after
-        handler.postDelayed(post, delay);
+    // Receive a new SMS
+    public void receiveSMS(String sender, String message) {
+        // Add to history
+        smsHistory.computeIfAbsent(sender, k -> new ArrayList<>()).add(new SMS(sender, message));
+
+        // Alert CLI
+        alertCLI(sender, message);
     }
 
-    private void tryPrint() {
-        count++;
+    // Vibrate + beep alert
+    private void alertCLI(String sender, String message) {
+        // Beep
+        Tuils.sendOutput(0xFFFF00, context, "[SMS] New message from: " + sender);
 
-        if(tutorialMode) {
-            SharedPreferences.Editor editor = context.getSharedPreferences(PREFS_NAME, 0).edit();
-            if(count < original.size()) {
-                Tuils.sendOutput(color, context, original.get(count));
-                editor.putInt(LAST_TUTORIAL_COUNT, count).apply();
+        // Vibrate (500ms)
+        if (vibrator != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
             } else {
-                editor.putBoolean(NEED_TUTORIAL_KEY, false).apply();
+                vibrator.vibrate(500);
             }
-        } else if(count == REACH_THIS) {
-            count = 0;
+        }
 
-            if(donate) {
-                Tuils.sendOutput(color, context, R.string.donate);
-            } else {
-                if(copy.size() == 0) {
-                    copy = new ArrayList<>(original);
-                    random = new Random();
-                }
+        // Show first line only
+        SMS sms = smsHistory.get(sender).get(smsHistory.get(sender).size() - 1);
+        Tuils.sendOutput(0xFFFFFF, context, sms.firstLine());
+    }
 
-                int index = random.nextInt(copy.size());
-                if(copy.size() <= index) {
-                    return;
-                }
+    // Unlock CLI (biometric simulation)
+    public void unlockCLI() {
+        cliUnlocked = true;
+    }
 
-                Tuils.sendOutput(color, context, MARKER + Tuils.NEWLINE + copy.remove(index) + Tuils.NEWLINE + MARKER);
-            }
+    // Lock CLI
+    public void lockCLI() {
+        cliUnlocked = false;
+    }
 
-            donate = !donate;
+    // List all contacts with unread messages (show first line)
+    public void listSMS() {
+        for (String contact : smsHistory.keySet()) {
+            List<SMS> list = smsHistory.get(contact);
+            if (list.isEmpty()) continue;
+
+            SMS last = list.get(list.size() - 1);
+            Tuils.sendOutput(0x00FF00, context,
+                    contact + " | " + last.timeString() + " | " + last.firstLine());
         }
     }
 
-    public void onDestroy() {
-        if(tutorialMode) {
-            SharedPreferences.Editor editor = context.getSharedPreferences(PREFS_NAME, 0).edit();
+    // Show full history for a contact (only if CLI unlocked)
+    public void showHistory(String contact) {
+        if (!cliUnlocked) {
+            Tuils.sendOutput(0xFF0000, context, "CLI locked. Unlock to view full history.");
+            return;
+        }
 
-            if(count + 1 < original.size()) {
-                editor.putInt(LAST_TUTORIAL_COUNT, count + 1).apply();
-            } else {
-                editor.putBoolean(NEED_TUTORIAL_KEY, false).apply();
-            }
+        List<SMS> list = smsHistory.get(contact);
+        if (list == null || list.isEmpty()) {
+            Tuils.sendOutput(0xFFFFFF, context, "No messages for " + contact);
+            return;
+        }
+
+        for (SMS sms : list) {
+            Tuils.sendOutput(0xFFFFFF, context,
+                    sms.timeString() + " | " + sms.sender + " | " + sms.fullMessage());
+            sms.viewed = true;
         }
     }
 
-    public static boolean isShowingFirstTimeTutorial(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, 0);
-
-        if(preferences.getBoolean(NEED_TUTORIAL_KEY, true)) {
-            return true;
+    // Reply to a contact
+    public void replySMS(String contact, String replyMessage) {
+        List<SMS> list = smsHistory.get(contact);
+        if (list == null) {
+            Tuils.sendOutput(0xFF0000, context, "No messages for " + contact);
+            return;
         }
 
-        if(preferences.getInt(LAST_TUTORIAL_COUNT, 0) >= context.getResources().getStringArray(R.array.tutorial).length) {
-            preferences.edit().putBoolean(NEED_TUTORIAL_KEY, false).apply();
-            return false;
-        } else {
-            return true;
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(contact, null, replyMessage, null, null);
+            Tuils.sendOutput(0x00FF00, context, "Sent reply to " + contact);
+            receiveSMS(contact, replyMessage); // also store reply in history
+        } catch (Exception e) {
+            Tuils.sendOutput(0xFF0000, context, "Failed to send SMS: " + e.getMessage());
         }
     }
+
+    // Count total messages
+    public int totalMessages() {
+        int count = 0;
+        for (List<SMS> list : smsHistory.values()) {
+            count += list.size();
+        }
+        return count;
+    }
+
 }

@@ -25,7 +25,7 @@ public class CallCommand implements CommandAbstraction {
     @Override
     public String onExec(ExecutePack pack) throws Exception {
         // usage:
-        // call <number>    -> dial
+        // call <number>    -> dial (ACTION_CALL)
         // call answer      -> accept ringing call
         // call reject      -> reject / end call
         String[] args = pack.getArgs();
@@ -44,7 +44,6 @@ public class CallCommand implements CommandAbstraction {
                         tm.acceptRingingCall();
                         return "Call answered.";
                     } catch (Exception e) {
-                        // fallback: try endCall? not needed here
                         return "Failed to answer call: " + e.getMessage();
                     }
                 } else {

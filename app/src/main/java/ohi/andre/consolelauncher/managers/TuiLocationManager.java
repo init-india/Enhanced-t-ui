@@ -1,195 +1,144 @@
 package ohi.andre.consolelauncher.managers;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.os.Handler;
-import android.os.Looper;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-import ohi.andre.consolelauncher.BuildConfig;
-import ohi.andre.consolelauncher.LauncherActivity;
-import ohi.andre.consolelauncher.managers.xml.XMLPrefsManager;
-import ohi.andre.consolelauncher.managers.xml.options.Behavior;
 import ohi.andre.consolelauncher.tuils.Tuils;
 
+/**
+ * TUI Location Manager for CLI-based location suggestions and voice-guided navigation.
+ */
 public class TuiLocationManager {
 
-    public static final String ACTION_GOT_PERMISSION = BuildConfig.APPLICATION_ID + ".got_location_permission";
+    private final Context context;
+    private final TextToSpeech tts;
+    private final Handler handler;
 
-    public static final String LATITUDE = "lat", LONGITUDE = "long", FAIL = "fail";
+    private List<String> suggestions;
+    private String destination;
 
-    private static final int MAX_DELAY = 10000;
-
-    Context context;
-    BroadcastReceiver receiver;
-
-    LocationListener locationListener;
-
-    Handler handler;
-
-    public boolean locationAvailable = false;
-    public double latitude, longitude;
-
-    private List<String> actionsPool;
-
-    private static TuiLocationManager instance;
-    public static TuiLocationManager instance(Context context) {
-        if(instance == null) instance = new TuiLocationManager(context);
-        return instance;
-    }
-
-    private TuiLocationManager(final Context context) {
+    public TuiLocationManager(@NonNull Context context) {
         this.context = context;
-        actionsPool = new ArrayList<>();
+        this.handler = new Handler();
+        this.suggestions = new ArrayList<>();
+        this.destination = null;
 
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                clearHandler();
-
-                latitude = location.getLatitude();
-                longitude = location.getLongitude();
-
-                locationAvailable = true;
-
-                LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context.getApplicationContext());
-
-                for(String s : actionsPool) {
-                    Intent i = new Intent(s);
-                    i.putExtra(LATITUDE, location.getLatitude());
-                    i.putExtra(LONGITUDE, location.getLongitude());
-                    localBroadcastManager.sendBroadcast(i);
-                }
+        // Initialize TextToSpeech
+        tts = new TextToSpeech(context, status -> {
+            if (status == TextToSpeech.SUCCESS) {
+                tts.setLanguage(Locale.getDefault());
+            } else {
+                Log.e("TuiLocationManager", "TextToSpeech initialization failed");
             }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        };
-
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-
-                if(action.equals(ACTION_GOT_PERMISSION)) {
-                    if (intent.getIntExtra(XMLPrefsManager.VALUE_ATTRIBUTE, 1) == PackageManager.PERMISSION_GRANTED) {
-                        register();
-                    }
-                }
-            }
-        };
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_GOT_PERMISSION);
-
-        LocalBroadcastManager.getInstance(context.getApplicationContext()).registerReceiver(receiver, filter);
+        });
     }
 
-    private boolean registered = false;
+    /**
+     * Fetch suggestions based on partial query.
+     * CLI will call this as user types location.
+     */
+    public List<String> getSuggestions(String query) {
+        // Placeholder: In practice, integrate Google Places API or OSM API
+        suggestions.clear();
 
-    @SuppressLint("MissingPermission")
-    private void register() {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions((Activity) context, new String[] {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, LauncherActivity.LOCATION_REQUEST_PERMISSION);
+        if (query.toLowerCase().contains("baker")) {
+            suggestions.add("221B Baker Street, London");
+            suggestions.add("221B Baker Avenue, Manchester");
+            suggestions.add("221B Bamboo Street, Dublin");
+        } else if (query.toLowerCase().contains("main")) {
+            suggestions.add("Main Street, Springfield");
+            suggestions.add("Main Avenue, New York");
+        } else {
+            suggestions.add("Central Park, New York");
+            suggestions.add("Times Square, New York");
+        }
+
+        return suggestions;
+    }
+
+    /**
+     * Set destination after user selects a suggestion.
+     */
+    public void setDestination(int index) {
+        if (index >= 0 && index < suggestions.size()) {
+            destination = suggestions.get(index);
+            Tuils.sendOutput(0xFF00FF00, context, "Destination selected: " + destination);
+        } else {
+            Tuils.sendOutput(0xFFFF0000, context, "Invalid selection index!");
+        }
+    }
+
+    /**
+     * Start voice-guided navigation to the selected destination.
+     */
+    public void navigate() {
+        if (destination == null) {
+            Tuils.sendOutput(0xFFFF0000, context, "No destination selected!");
             return;
         }
 
-        if(registered) return;
-        registered = true;
+        Tuils.sendOutput(0xFF00FF00, context, "Starting navigation to: " + destination);
 
-        Criteria c = new Criteria();
-        c.setAltitudeRequired(false);
-        c.setAccuracy(Criteria.ACCURACY_COARSE);
-        c.setBearingRequired(false);
-        c.setCostAllowed(false);
-        c.setHorizontalAccuracy(Criteria.NO_REQUIREMENT);
-        c.setPowerRequirement(Criteria.POWER_LOW);
-        c.setSpeedRequired(false);
+        // Placeholder for routing steps
+        String[] steps = new String[]{
+                "Head north for 200 meters",
+                "Turn right onto Baker Street",
+                "Destination will be on the left"
+        };
 
-        LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-
-        try {
-            manager.requestLocationUpdates(XMLPrefsManager.getInt(Behavior.location_update_mintime) * 60 * 1000, XMLPrefsManager.getInt(Behavior.location_update_mindistance),
-                    c, locationListener, Looper.getMainLooper());
-        } catch (Exception e) {
-            Tuils.log(e);
-            Tuils.toFile(e);
+        // Announce each step with delay
+        for (int i = 0; i < steps.length; i++) {
+            final int idx = i;
+            handler.postDelayed(() -> speakStep(steps[idx]), i * 5000L); // 5s interval
         }
-
-        handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(context.getApplicationContext());
-
-                for(String s : actionsPool) {
-                    Intent i = new Intent(s);
-                    i.putExtra(FAIL, true);
-                    localBroadcastManager.sendBroadcast(i);
-                }
-
-                dispose();
-            }
-        }, MAX_DELAY);
     }
 
-    public void add(String action) {
-        actionsPool.add(action);
-
-        register();
+    /**
+     * Speak a single navigation step.
+     */
+    private void speakStep(String step) {
+        Tuils.sendOutput(0xFFFFFFFF, context, "NAV: " + step);
+        tts.speak(step, TextToSpeech.QUEUE_ADD, null, "NAV_STEP");
     }
 
-    public void rm(String action) {
-        actionsPool.remove(action);
+    /**
+     * Stop navigation.
+     */
+    public void stopNavigation() {
+        tts.stop();
+        Tuils.sendOutput(0xFFFFFF00, context, "Navigation stopped.");
     }
 
-    private void dispose() {
-        actionsPool.clear();
-        LocalBroadcastManager.getInstance(context.getApplicationContext()).unregisterReceiver(receiver);
-
-        LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        if(manager != null) manager.removeUpdates(locationListener);
-
-        clearHandler();
+    /**
+     * Pause navigation (TTS pause only, routing still active in real implementation).
+     */
+    public void pauseNavigation() {
+        tts.stop();
+        Tuils.sendOutput(0xFFFFFF00, context, "Navigation paused.");
     }
 
-    public static void disposeStatic() {
-        if(instance != null) instance.dispose();
-        instance = null;
+    /**
+     * Resume navigation from pause.
+     */
+    public void resumeNavigation() {
+        Tuils.sendOutput(0xFFFFFF00, context, "Resuming navigation...");
+        navigate();
     }
 
-    private void clearHandler() {
-        if(handler != null) {
-            handler.removeCallbacksAndMessages(null);
-            handler = null;
+    /**
+     * Release TTS resources on destroy.
+     */
+    public void onDestroy() {
+        if (tts != null) {
+            tts.shutdown();
         }
     }
 }

@@ -4,9 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Vibrator;
+import android.media.RingtoneManager;
+import android.media.Ringtone;
 import android.telephony.SmsMessage;
 
-import ohi.andre.consolelauncher.managers.notifications.NotificationManager;
+import ohi.andre.consolelauncher.managers.SmsManagerConsole;
 
 public class SmsReceiver extends BroadcastReceiver {
 
@@ -18,13 +21,24 @@ public class SmsReceiver extends BroadcastReceiver {
         Object[] pdus = (Object[]) bundle.get("pdus");
         if (pdus == null) return;
 
-        NotificationManager manager = NotificationManager.create(context);
-
         for (Object pdu : pdus) {
             SmsMessage sms = SmsMessage.createFromPdu((byte[]) pdu);
             String sender = sms.getDisplayOriginatingAddress();
             String body = sms.getMessageBody();
-            manager.push("SMS from " + sender + ": " + body);
+
+            // 👉 Vibrate + beep
+            Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+            if (v != null) v.vibrate(500);
+
+            try {
+                Ringtone r = RingtoneManager.getRingtone(context, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+                if (r != null) r.play();
+            } catch (Exception e) {
+                // ignore
+            }
+
+            // 👉 Pass SMS to manager
+            SmsManagerConsole.getInstance(context).onSmsReceived(sender, body);
         }
     }
 }
