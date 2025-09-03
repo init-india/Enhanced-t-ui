@@ -26,6 +26,21 @@ android {
         }
     }
 
+    // ✅ Flavors for F-Droid and Normal
+    flavorDimensions "distribution"
+    productFlavors {
+        fdroid {
+            dimension "distribution"
+            applicationIdSuffix ".fdroid"
+            versionNameSuffix "-fdroid"
+        }
+        normal {
+            dimension "distribution"
+            applicationIdSuffix ".normal"
+            versionNameSuffix "-normal"
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
