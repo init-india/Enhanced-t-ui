@@ -1,61 +1,56 @@
 plugins {
-    id "com.android.application"
-    id "org.jetbrains.kotlin.android"
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android' version '1.9.0' apply false
 }
 
 android {
-    namespace "ohi.andre.consolelauncher"
+    namespace 'ohi.andre.consolelauncher'
     compileSdk 33
-    buildToolsVersion "33.0.2"
 
     defaultConfig {
         applicationId "ohi.andre.consolelauncher"
         minSdk 21
         targetSdk 33
-        versionCode 205
-        versionName "v6.15"
-        flavorDimensions "default"
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-            zipAlignEnabled true
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            minifyEnabled false
-            shrinkResources false
+            debuggable true
         }
     }
 
-    productFlavors {
-        fdroid { }
-        playstore { }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 }
 
 dependencies {
-    implementation "androidx.core:core-ktx:1.10.1"
-    implementation "androidx.appcompat:appcompat:1.6.1"
-    implementation "com.google.android.material:material:1.9.0"
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    implementation 'androidx.recyclerview:recyclerview:1.3.1'
+    implementation 'com.google.android.material:material:1.10.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-    // SMS, Calls, Contacts
-    implementation "androidx.legacy:legacy-support-v4:1.0.0"
-
-    // Annotation + LocalBroadcastManager (fix for android.support.* errors)
-    implementation "androidx.annotation:annotation:1.7.1"
-    implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.1.0"
-
-    // Networking
-    implementation "com.squareup.okhttp3:okhttp:4.11.0"
-
-    // JSON parsing
-    implementation "com.jayway.jsonpath:json-path:2.8.0"
-
-    // Logging
-    implementation "org.slf4j:slf4j-api:2.0.9"
-
-    // String comparison utils (we’ll add manual classes instead of JitPack)
+    // Test dependencies
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
