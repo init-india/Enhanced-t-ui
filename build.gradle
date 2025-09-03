@@ -1,7 +1,14 @@
 // File: build.gradle (project-level)
 
-plugins {
-    id 'com.android.application' version '8.1.4' apply false
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // ✅ Use a stable Android Gradle Plugin version
+        classpath "com.android.tools.build:gradle:8.1.2"
+    }
 }
 
 allprojects {

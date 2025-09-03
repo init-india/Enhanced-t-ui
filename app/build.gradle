@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace 'ohi.andre.consolelauncher'
-    compileSdk 34   // ⬅️ Updated from 33 → 34
+    compileSdk 34
 
     defaultConfig {
         applicationId "ohi.andre.consolelauncher"
         minSdk 21
-        targetSdk 34   // ⬅️ Updated from 33 → 34
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -26,7 +26,6 @@ android {
         }
     }
 
-    // ✅ Add flavor support
     flavorDimensions "default"
     productFlavors {
         fdroid {
@@ -47,13 +46,31 @@ android {
     }
 }
 
+configurations.all {
+    exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+    exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk7"
+    exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
+}
+
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.core:core:1.12.0'
-    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
-    implementation 'androidx.recyclerview:recyclerview:1.3.1'
-    implementation 'com.google.android.material:material:1.9.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation('androidx.appcompat:appcompat:1.6.1') {
+        exclude group: "org.jetbrains.kotlin"
+    }
+    implementation('androidx.core:core:1.12.0') {
+        exclude group: "org.jetbrains.kotlin"
+    }
+    implementation('androidx.localbroadcastmanager:localbroadcastmanager:1.1.0') {
+        exclude group: "org.jetbrains.kotlin"
+    }
+    implementation('androidx.recyclerview:recyclerview:1.3.1') {
+        exclude group: "org.jetbrains.kotlin"
+    }
+    implementation('com.google.android.material:material:1.9.0') {
+        exclude group: "org.jetbrains.kotlin"
+    }
+    implementation('androidx.constraintlayout:constraintlayout:2.1.4') {
+        exclude group: "org.jetbrains.kotlin"
+    }
 
     // Test dependencies
     testImplementation 'junit:junit:4.13.2'

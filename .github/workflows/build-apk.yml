@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -18,13 +19,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          api-level: 34   # ✅ Updated to match compileSdk
-          build-tools: 34.0.0
-          ndk: false
 
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
@@ -39,20 +33,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Build Normal APK
-        run: ./gradlew clean assembleNormalDebug
-
-      - name: Upload Normal APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: TUI-ConsoleLauncher-normal-debug-apk
-          path: app/build/outputs/apk/normal/debug/*.apk
-
-      - name: Build F-Droid APK
-        run: ./gradlew clean assembleFdroidDebug
+      - name: Build APKs (fdroid + normal)
+        run: |
+          ./gradlew clean assembleFdroidDebug assembleNormalDebug
 
       - name: Upload F-Droid APK
         uses: actions/upload-artifact@v4
         with:
           name: TUI-ConsoleLauncher-fdroid-debug-apk
           path: app/build/outputs/apk/fdroid/debug/*.apk
+
+      - name: Upload Normal APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TUI-ConsoleLauncher-normal-debug-apk
+          path: app/build/outputs/apk/normal/debug/*.apk
