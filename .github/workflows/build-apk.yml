@@ -32,20 +32,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Build Normal Debug APK
-        run: ./gradlew clean assembleNormalDebug
-
-      - name: Upload Normal Debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: TUI-ConsoleLauncher-normal-debug-apk
-          path: app/build/outputs/apk/normal/debug/*.apk
-
       - name: Build F-Droid Debug APK
-        run: ./gradlew assembleFdroidDebug
+        run: ./gradlew clean assembleFdroidDebug
 
-      - name: Upload F-Droid Debug APK
+      - name: Build Normal Debug APK
+        run: ./gradlew assembleNormalDebug
+
+      - name: Upload F-Droid APK
         uses: actions/upload-artifact@v4
         with:
-          name: TUI-ConsoleLauncher-fdroid-debug-apk
+          name: TUI-ConsoleLauncher-fdroid-apk
           path: app/build/outputs/apk/fdroid/debug/*.apk
+
+      - name: Upload Normal APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TUI-ConsoleLauncher-normal-apk
+          path: app/build/outputs/apk/normal/debug/*.apk
