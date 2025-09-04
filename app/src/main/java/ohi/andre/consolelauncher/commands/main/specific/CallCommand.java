@@ -1,14 +1,11 @@
 package ohi.andre.consolelauncher.commands.main.specific;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
-import android.telecom.TelecomManager;
-import android.text.TextUtils;
 
 import ohi.andre.consolelauncher.CommandAbstraction;
 import ohi.andre.consolelauncher.ExecutePack;
+import ohi.andre.consolelauncher.managers.CallManager;
+import ohi.andre.consolelauncher.tuils.Tuils;
 
 public class CallCommand implements CommandAbstraction {
 
@@ -24,61 +21,16 @@ public class CallCommand implements CommandAbstraction {
 
     @Override
     public String onExec(ExecutePack pack) throws Exception {
-        // usage:
-        // call <number>    -> dial (ACTION_CALL)
-        // call answer      -> accept ringing call
-        // call reject      -> reject / end call
-        String[] args = pack.getArgs();
-        if (args == null || args.length == 0) {
-            return "Usage: call <number> | call answer | call reject";
-        }
-
-        String sub = args[0].toLowerCase();
         Context ctx = pack.context;
+        String[] args = pack.getArgs();
 
-        if ("answer".equals(sub)) {
-            TelecomManager tm = (TelecomManager) ctx.getSystemService(Context.TELECOM_SERVICE);
-            if (tm != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    try {
-                        tm.acceptRingingCall();
-                        return "Call answered.";
-                    } catch (Exception e) {
-                        return "Failed to answer call: " + e.getMessage();
-                    }
-                } else {
-                    return "Answering calls programmatically requires API >= 26 on many devices.";
-                }
-            }
-            return "TelecomManager unavailable.";
-        } else if ("reject".equals(sub) || "end".equals(sub) || "hangup".equals(sub)) {
-            TelecomManager tm = (TelecomManager) ctx.getSystemService(Context.TELECOM_SERVICE);
-            if (tm != null) {
-                try {
-                    tm.endCall();
-                    return "Call rejected/ended.";
-                } catch (Exception e) {
-                    return "Failed to end call: " + e.getMessage();
-                }
-            }
-            return "TelecomManager unavailable.";
+        if (args.length == 0) {
+            // List all calls
+            return CallManager.listAllCalls(ctx);
         } else {
-            // dial
-            String number = sub;
-            if (args.length > 1) {
-                // number may be multiple tokens
-                StringBuilder sb = new StringBuilder(sub);
-                for (int i = 1; i < args.length; i++) {
-                    sb.append(" ").append(args[i]);
-                }
-                number = sb.toString().trim();
-            }
-            if (TextUtils.isEmpty(number)) return "No number provided.";
-            Intent i = new Intent(Intent.ACTION_CALL);
-            i.setData(Uri.parse("tel:" + number));
-            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            ctx.startActivity(i);
-            return "Calling " + number;
+            // Initiate call to contact
+            String contact = args[0];
+            return CallManager.callContact(ctx, contact);
         }
     }
 
@@ -89,6 +41,6 @@ public class CallCommand implements CommandAbstraction {
 
     @Override
     public String getHelp() {
-        return "call <number> | call answer | call reject";
+        return "call [contact] - list calls or call contact";
     }
 }

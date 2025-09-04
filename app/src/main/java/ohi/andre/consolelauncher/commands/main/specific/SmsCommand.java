@@ -1,155 +1,99 @@
 package ohi.andre.consolelauncher.commands.main.specific;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.Telephony;
-import android.text.TextUtils;
+
+import ohi.andre.consolelauncher.CommandAbstraction;
+import ohi.andre.consolelauncher.ExecutePack;
+import ohi.andre.consolelauncher.managers.MessagesManager;
+import ohi.andre.consolelauncher.managers.notificatio.NotificationManager;
+import ohi.andre.consolelauncher.tuils.Tuils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import ohi.andre.consolelauncher.commands.CommandAbstraction;
-import ohi.andre.consolelauncher.commands.ExecutePack;
-import ohi.andre.consolelauncher.managers.ContactManager;
-import ohi.andre.consolelauncher.tuils.Tuils;
-
-/**
- * CLI command: sms
- *
- * - "sms" → list recent SMS threads (contact + 1st line preview).
- * - "sms <contact>" → show conversation history + allow reply.
- */
 public class SmsCommand implements CommandAbstraction {
 
     @Override
+    public String[] args() {
+        return new String[]{"sms"};
+    }
+
+    @Override
+    public int argType() {
+        return 0;
+    }
+
+    @Override
     public String onExec(ExecutePack pack) throws Exception {
-        Context context = pack.context;
-        String[] args = pack.args;
+        Context ctx = pack.context;
+        String[] args = pack.getArgs();
 
         if (args.length == 0) {
-            // List all recent conversations
-            return listConversations(context);
+            // List all contacts with first line of SMS
+            return listSmsContacts(ctx);
         } else {
-            // Show history with a specific contact
-            String contactName = TextUtils.join(" ", args);
-            return showConversation(context, contactName);
+            // Show full history for selected contact
+            String contact = args[0];
+            return listSmsHistory(ctx, contact);
         }
     }
 
-    private String listConversations(Context context) {
-        ContentResolver cr = context.getContentResolver();
-        Cursor cursor = cr.query(
-                Telephony.Sms.Inbox.CONTENT_URI,
-                new String[]{Telephony.Sms.ADDRESS, Telephony.Sms.BODY, Telephony.Sms.DATE},
-                null,
-                null,
-                Telephony.Sms.DEFAULT_SORT_ORDER
-        );
+    private String listSmsContacts(Context ctx) {
+        Uri inboxUri = Telephony.Sms.Inbox.CONTENT_URI;
+        Cursor cursor = ctx.getContentResolver().query(inboxUri,
+                new String[]{"_id", "address", "body", "date"}, null, null, "date DESC");
 
-        if (cursor == null) return "No SMS found.";
+        if (cursor == null) return "No messages.";
 
-        StringBuilder sb = new StringBuilder();
-        List<String> seenContacts = new ArrayList<>();
-
-        while (cursor.moveToNext()) {
-            String address = cursor.getString(0);
-            String body = cursor.getString(1);
-            long date = cursor.getLong(2);
-
-            String contact = ContactManager.getContactName(context, address);
-            if (contact == null) contact = address;
-
-            if (!seenContacts.contains(contact)) {
-                seenContacts.add(contact);
-
-                String preview = body.split("\n")[0];
-                if (preview.length() > 30) preview = preview.substring(0, 30) + "...";
-
-                sb.append("[").append(Tuils.formatDate(date))
-                  .append("] ").append(contact)
-                  .append(": \"").append(preview).append("\"\n");
-            }
-        }
-
-        cursor.close();
-
-        if (sb.length() == 0) return "No SMS threads found.";
-        return sb.toString();
-    }
-
-    private String showConversation(Context context, String contactName) {
-        ContentResolver cr = context.getContentResolver();
-        Cursor cursor = cr.query(
-                Telephony.Sms.CONTENT_URI,
-                new String[]{Telephony.Sms.ADDRESS, Telephony.Sms.BODY, Telephony.Sms.TYPE, Telephony.Sms.DATE},
-                null,
-                null,
-                Telephony.Sms.DEFAULT_SORT_ORDER
-        );
-
-        if (cursor == null) return "No messages with " + contactName;
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("--- SMS with ").append(contactName).append(" ---\n");
-
-        while (cursor.moveToNext()) {
-            String address = cursor.getString(0);
-            String body = cursor.getString(1);
-            int type = cursor.getInt(2);
-            long date = cursor.getLong(3);
-
-            String resolved = ContactManager.getContactName(context, address);
-            if (resolved == null) resolved = address;
-
-            if (resolved.equalsIgnoreCase(contactName)) {
-                String sender = (type == Telephony.Sms.MESSAGE_TYPE_INBOX) ? resolved : "You";
-                sb.append("[").append(Tuils.formatDate(date)).append("] ")
-                  .append(sender).append(": ").append(body).append("\n");
-            }
-        }
-
-        cursor.close();
-        sb.append("-----------------------\nReply to ").append(contactName).append(":");
-
-        return sb.toString();
-    }
-
-    /**
-     * Helper: Send SMS to a contact.
-     */
-    public static String sendSms(Context context, String contactName, String message) {
-        String number = ContactManager.getPhoneNumber(context, contactName);
-        if (number == null) {
-            return "Contact not found: " + contactName;
-        }
-
+        List<String> output = new ArrayList<>();
         try {
-            Uri uri = Uri.parse("content://sms/sent");
-            ContentValues values = new ContentValues();
-            values.put("address", number);
-            values.put("body", message);
-            context.getContentResolver().insert(uri, values);
+            while (cursor.moveToNext()) {
+                String sender = cursor.getString(cursor.getColumnIndexOrThrow("address"));
+                String body = cursor.getString(cursor.getColumnIndexOrThrow("body"));
+                String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
 
-            // Actually send SMS using SmsManager
-            android.telephony.SmsManager smsManager = android.telephony.SmsManager.getDefault();
-            smsManager.sendTextMessage(number, null, message, null, null);
-
-            return "✔ SMS sent to " + contactName + ": \"" + message + "\"";
-        } catch (Exception e) {
-            return "❌ Failed to send SMS: " + e.getMessage();
+                String firstLine = body.split("\n")[0];
+                output.add(sender + " | " + firstLine + " | " + Tuils.getFormattedDate(date));
+            }
+        } finally {
+            cursor.close();
         }
+
+        return String.join("\n", output);
+    }
+
+    private String listSmsHistory(Context ctx, String contact) {
+        Uri inboxUri = Telephony.Sms.CONTENT_URI;
+        Cursor cursor = ctx.getContentResolver().query(inboxUri,
+                new String[]{"_id", "address", "body", "date"}, "address=?", new String[]{contact}, "date DESC");
+
+        if (cursor == null) return "No messages for " + contact;
+
+        List<String> output = new ArrayList<>();
+        try {
+            while (cursor.moveToNext()) {
+                String body = cursor.getString(cursor.getColumnIndexOrThrow("body"));
+                String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
+                output.add(Tuils.getFormattedDate(date) + " | " + body);
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return String.join("\n", output);
     }
 
     @Override
-    public int[] modes() {
-        return new int[]{CommandAbstraction.DEFAULT};
+    public String onArg(ExecutePack pack) throws Exception {
+        return onExec(pack);
     }
 
     @Override
-    public int priority() {
-        return 5;
+    public String getHelp() {
+        return "sms [contact] - list all messages or messages by contact";
     }
 }
