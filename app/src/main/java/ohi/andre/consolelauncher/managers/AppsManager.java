@@ -9,30 +9,30 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXParseException;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import ohi.andre.consolelauncher.MainManager;
 import ohi.andre.consolelauncher.R;
 import ohi.andre.consolelauncher.UIManager;
-import ohi.andre.consolelauncher.commands.main.MainParser;
+import ohi.andre.consolelauncher.commands.main.MainPack;
+
 import ohi.andre.consolelauncher.managers.xml.XMLPref;
-import ohi.andre.consolelauncher.managers.xml.XMLPrefsList;
 import ohi.andre.consolelauncher.managers.xml.XMLPrefsManager;
+import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsElement;
+import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsList;
 import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsSave;
+
 import ohi.andre.consolelauncher.tuils.StoppableThread;
 import ohi.andre.consolelauncher.tuils.Tuils;
 
@@ -47,7 +47,6 @@ public class AppsManager implements XMLPrefsElement {
 
     private final String SHOW_ATTRIBUTE = "show";
     private static final String APPS_SEPARATOR = ";";
-
     private Context context;
 
     private AppsHolder appsHolder;
@@ -61,11 +60,10 @@ public class AppsManager implements XMLPrefsElement {
 
     private XMLPrefsList prefsList;
 
-    public List<Group> groups;
-
+    public List<Group> groups;                        
     private Pattern pp, pl;
     private String appInstalledFormat, appUninstalledFormat;
-    int appInstalledColor, appUninstalledColor;
+    private int appInstalledColor, appUninstalledColor;
 
     @Override
     public String[] delete() {
@@ -74,7 +72,7 @@ public class AppsManager implements XMLPrefsElement {
 
     @Override
     public void write(XMLPrefsSave save, String value) {
-        set(new File(Tuils.getFolder(), PATH), save.label(), value);
+        set(new File(Tuils.getFolder(), PATH), save.list);
     }
 
     @Override
@@ -102,18 +100,17 @@ public class AppsManager implements XMLPrefsElement {
 
     public AppsManager(final Context context) {
         instance = this;
-
         this.context = context;
 
-        appInstalledFormat = XMLPrefsManager.getBoolean("appInstalledFormat");
-        appUninstalledFormat = XMLPrefsManager.getBoolean("appUninstalledFormat");
+        appInstalledFormat = XMLPrefsManager.getBoolean("appInstalledFormat", "%p installed");
+        appUninstalledFormat = XMLPrefsManager.getBoolean("appUninstalledFormat", "%p uninstalled");
 
         if (appInstalledFormat != null || appUninstalledFormat != null) {
             pp = Pattern.compile("%p", Pattern.CASE_INSENSITIVE);
             pl = Pattern.compile("%l", Pattern.CASE_INSENSITIVE);
 
-            appInstalledColor = XMLPrefsManager.getColor("appInstalledColor");
-            appUninstalledColor = XMLPrefsManager.getColor("appUninstalledColor");
+            appInstalledColor = XMLPrefsManager.getColor("appInstalledColor", 0xFF00FF00);
+            appUninstalledColor = XMLPrefsManager.getColor("appUninstalledColor", 0xFFFF0000);
         } else {
             pp = null;
             pl = null;
@@ -126,7 +123,6 @@ public class AppsManager implements XMLPrefsElement {
         this.editor = preferences.edit();
 
         this.groups = new ArrayList<>();
-
         initAppListener(context);
 
         new StoppableThread() {
@@ -134,7 +130,7 @@ public class AppsManager implements XMLPrefsElement {
             public void run() {
                 super.run();
                 fill();
-                LocalBroadcastManager.getInstance(context);
+                LocalBroadcastManager.getInstance(context).registerReceiver(appsBroadcast, new IntentFilter());
             }
         }.start();
     }
@@ -155,35 +151,25 @@ public class AppsManager implements XMLPrefsElement {
 
         try {
             prefsList = new XMLPrefsList();
-
-            if (file != null) {
-                if (!file.exists()) {
-                    resetFile(file, NAME);
-                }
-
-                Object[] o;
-                try {
-                    o = XMLPrefsManager.buildDocument(file);
-                    if (o == null) {
-                        Tuils.sendXMLParseError(context, file);
-                        return;
-                    }
-                } catch (SAXParseException e) {
-                    Tuils.sendXMLParseError(context, file);
-                    return;
-                } catch (Exception e) {
-                    Tuils.log(e);
-                    return;
-                }
-
-                Document d = (Document) o[0];
-                Element root = (Element) o[1];
-
-                // Additional parsing and processing...
+            if (file != null && !file.exists()) {
+                resetFile(file, NAME);
             }
 
+            Object[] o = XMLPrefsManager.buildDocument(file);
+            if (o == null) {
+                Tuils.sendXMLParseError(context, file);
+                return;
+            }
+
+            Document d = (Document) o[0];
+            Element root = (Element) o[1];
+            // Additional parsing here
+        } catch (SAXParseException e) {
+            Tuils.sendXMLParseError(context, file);
+            return;
         } catch (Exception e) {
-            Tuils.toFile(e);
+            Tuils.log(e);
+            return;
         }
 
         appsHolder = new AppsHolder(allApps, prefsList);
@@ -203,7 +189,7 @@ public class AppsManager implements XMLPrefsElement {
         }
 
         for (ResolveInfo ri : main) {
-            LaunchInfo li = new LaunchInfo(ri.activityInfo.packageName, ri.activityInfo.name, ri.loadLabel(mgr).toString());
+            LaunchInfo li = new LaunchInfo(ri.activityInfo.packageName, ri.activityInfo.name);
             infos.add(li);
         }
 
@@ -216,16 +202,15 @@ public class AppsManager implements XMLPrefsElement {
             PackageInfo packageInfo = manager.getPackageInfo(packageName, 0);
 
             if (appInstalledFormat != null) {
-                String cp = appInstalledFormat;
-                cp = pp.matcher(cp).replaceAll(packageName);
-                Tuils.sendOutput(appInstalledColor, context, cp);
+                String cp = pp.matcher(appInstalledFormat).replaceAll(packageName);
+                Tuils.sendOutput(appInstalledColor, cp);
             }
 
             Intent i = manager.getLaunchIntentForPackage(packageName);
             if (i == null) return;
 
             ComponentName name = i.getComponent();
-            LaunchInfo app = new LaunchInfo(packageName, name.getClassName(), name.getClassName());
+            LaunchInfo app = new LaunchInfo(packageName, name.getClassName());
             appsHolder.add(app);
         } catch (Exception ignored) {}
     }
@@ -236,9 +221,8 @@ public class AppsManager implements XMLPrefsElement {
         List<LaunchInfo> infos = appsHolder.findByPackage(packageName);
 
         if (appUninstalledFormat != null) {
-            String cp = appUninstalledFormat;
-            cp = pl.matcher(cp).replaceAll(packageName);
-            Tuils.sendOutput(appUninstalledColor, context, cp);
+            String cp = pl.matcher(appUninstalledFormat).replaceAll(packageName);
+            Tuils.sendOutput(appUninstalledColor, cp);
         }
 
         for (LaunchInfo i : infos) appsHolder.remove(i);
