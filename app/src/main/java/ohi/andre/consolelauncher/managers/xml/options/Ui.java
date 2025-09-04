@@ -3,8 +3,8 @@ package ohi.andre.consolelauncher.managers.xml.options;
 import android.os.Build;
 
 import ohi.andre.consolelauncher.managers.xml.XMLPrefsManager;
-import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsElement;
-import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsSave;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsElement;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsSave;
 
 /**
  * Created by francescoandreuzzi on 24/09/2017.

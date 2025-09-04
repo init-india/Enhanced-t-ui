@@ -1,8 +1,8 @@
 package ohi.andre.consolelauncher.managers.xml.options;
 
 import ohi.andre.consolelauncher.managers.RssManager;
-import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsElement;
-import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsSave;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsElement;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsSave;
 
 /**
  * Created by francescoandreuzzi on 03/10/2017.

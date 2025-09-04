@@ -5,8 +5,8 @@ import android.os.Environment;
 import java.io.File;
 
 import ohi.andre.consolelauncher.managers.xml.XMLPrefsManager;
-import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsElement;
-import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsSave;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsElement;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsSave;
 import ohi.andre.consolelauncher.tuils.Tuils;
 
 /**

@@ -1,8 +1,8 @@
 package ohi.andre.consolelauncher.managers.xml.options;
 
 import ohi.andre.consolelauncher.managers.notifications.NotificationManager;
-import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsElement;
-import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsSave;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsElement;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsSave;
 
 /**
  * Created by francescoandreuzzi on 24/09/2017.
