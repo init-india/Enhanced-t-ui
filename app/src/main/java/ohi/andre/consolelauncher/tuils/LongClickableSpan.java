@@ -6,7 +6,12 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Vibrator;
-import android.support.v4.content.LocalBroadcastManager;
+
+import androidx.core.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.core.app.NotificationCompat;
+
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.view.MenuItem;

@@ -6,7 +6,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.Uri;
-import android.support.v4.content.LocalBroadcastManager;
+
+import androidx.core.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;

@@ -23,9 +23,9 @@ import java.util.regex.Pattern;
 import ohi.andre.consolelauncher.R;
 import ohi.andre.consolelauncher.managers.RegexManager;
 import ohi.andre.consolelauncher.managers.xml.XMLPrefsManager;
-import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsE;
-import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsList;
-import ohi.andre.consolelauncher.managers.xml.classes.XMLPrefsSave;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsE;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsList;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsSave;
 import ohi.andre.consolelauncher.managers.xml.options.OptionBoolean;
 import ohi.andre.consolelauncher.tuils.Tuils;
 
