@@ -1,4 +1,4 @@
-package ohi.andre.consolelauncher.managers.xml.classes;
+package ohi.andre.consolelauncher.managers.xml;
 
 import java.util.ArrayList;
 import java.util.List;
