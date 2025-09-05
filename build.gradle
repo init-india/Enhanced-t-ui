@@ -1,20 +1,9 @@
 // File: build.gradle (project-level)
 
 buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
     dependencies {
-        // ✅ Use a stable Android Gradle Plugin version
-        classpath "com.android.tools.build:gradle:8.1.2"
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
+        // Use a stable Android Gradle Plugin version
+        classpath "com.android.tools.build:gradle:8.1.1"
     }
 }
 
