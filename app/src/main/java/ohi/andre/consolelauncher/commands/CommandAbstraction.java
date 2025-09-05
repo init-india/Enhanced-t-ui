@@ -2,7 +2,7 @@ package ohi.andre.consolelauncher.commands;
 
 public interface CommandAbstraction {
 
-    //	arg type
+    // Argument types
     int PLAIN_TEXT = 10;
     int FILE = 11;
     int VISIBLE_PACKAGE = 12;
@@ -26,10 +26,21 @@ public interface CommandAbstraction {
     int BOUND_REPLY_APP = 31;
     int DATASTORE_PATH_TYPE = 32;
 
+    // Command execution
     String exec(ExecutePack pack) throws Exception;
+
+    // Argument type(s) for this command
     int[] argType();
+
+    // Command priority
     int priority();
+
+    // Help resource ID
     int helpRes();
+
+    // Callback when an argument is not found
     String onArgNotFound(ExecutePack pack, int indexNotFound);
+
+    // Callback when not enough arguments provided
     String onNotArgEnough(ExecutePack pack, int nArgs);
 }
