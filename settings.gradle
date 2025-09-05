@@ -5,7 +5,7 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
-        maven { url "https://jitpack.io" }   // ✅ Needed for libsu
+        maven { url "https://jitpack.io" }  // For libsu or other GitHub deps
     }
 }
 
@@ -14,7 +14,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://jitpack.io" }   // ✅ Needed for libsu
+        maven { url "https://jitpack.io" }
     }
 }
 
