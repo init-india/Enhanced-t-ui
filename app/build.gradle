@@ -61,7 +61,14 @@ dependencies {
     implementation "net.sourceforge.htmlcleaner:htmlcleaner:2.29"
 
     // Superuser (root access, used by T-UI)
-   implementation "eu.chainfire:libsuperuser:1.0.0.201602010233"
+  
+implementation "com.github.topjohnwu.libsu:core:5.2.2"
+implementation "com.github.topjohnwu.libsu:service:5.2.2"
+implementation "com.github.topjohnwu.libsu:io:5.2.2"
+
+
+
+
 
     // AndroidX core + UI
     implementation('androidx.appcompat:appcompat:1.6.1') {
