@@ -53,14 +53,17 @@ configurations.all {
 }
 
 dependencies {
-
+    // Networking
     implementation "com.squareup.okhttp3:okhttp:4.12.0"
-    // Add others as needed: jsoup, htmlcleaner, etc.
-}
 
+    // HTML parsing / cleaning
+    implementation "org.jsoup:jsoup:1.16.1"
+    implementation "net.sourceforge.htmlcleaner:htmlcleaner:2.29"
 
+    // Superuser (root access, used by T-UI)
+    implementation "eu.chainfire:libsuperuser:1.1.0.+"
 
-
+    // AndroidX core + UI
     implementation('androidx.appcompat:appcompat:1.6.1') {
         exclude group: "org.jetbrains.kotlin"
     }
@@ -73,14 +76,17 @@ dependencies {
     implementation('androidx.recyclerview:recyclerview:1.3.1') {
         exclude group: "org.jetbrains.kotlin"
     }
-    implementation('com.google.android.material:material:1.9.0') {
+    implementation('com.google.android.material:material:1.10.0') {
         exclude group: "org.jetbrains.kotlin"
     }
     implementation('androidx.constraintlayout:constraintlayout:2.1.4') {
         exclude group: "org.jetbrains.kotlin"
     }
 
-    // Test dependencies
+    // Annotations
+    implementation "androidx.annotation:annotation:1.7.1"
+
+    // Tests
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
