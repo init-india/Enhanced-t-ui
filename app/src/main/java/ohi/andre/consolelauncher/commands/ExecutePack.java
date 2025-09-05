@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 
 import ohi.andre.consolelauncher.managers.AppsManager;
-import ohi.andre.consolelauncher.managers.AppsManager.LaunchInfo;
 import ohi.andre.consolelauncher.managers.xml.XMLPrefsSave;
 
 @SuppressWarnings("deprecation")
@@ -39,6 +38,7 @@ public abstract class ExecutePack {
         return null;
     }
 
+    @Nullable
     public String getString() {
         return (String) get();
     }
@@ -51,16 +51,19 @@ public abstract class ExecutePack {
         return (boolean) get();
     }
 
-    public ArrayList getList() {
-        return (ArrayList) get();
+    @Nullable
+    public ArrayList<?> getList() {
+        return (ArrayList<?>) get();
     }
 
+    @Nullable
     public XMLPrefsSave getPrefsSave() {
         return (XMLPrefsSave) get();
     }
 
-    public LaunchInfo getLaunchInfo() {
-        return (LaunchInfo) get();
+    @Nullable
+    public AppsManager.LaunchInfo getLaunchInfo() {
+        return (AppsManager.LaunchInfo) get();
     }
 
     public void set(Object[] args) {

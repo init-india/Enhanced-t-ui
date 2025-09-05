@@ -1,16 +1,17 @@
+// File: app/src/main/java/ohi/andre/consolelauncher/tuils/OutlineTextView.java
+
 package ohi.andre.consolelauncher.tuils;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatTextView;
 
-public class OutlineTextView extends android.support.v7.widget.AppCompatTextView {
+public class OutlineTextView extends AppCompatTextView {
 
     public static String SHADOW_TAG = "hasShadow";
-
     public static int redrawTimes = 1;
-
     private int drawTimes = -1;
 
     public OutlineTextView(Context context) {
