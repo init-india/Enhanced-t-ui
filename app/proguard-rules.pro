@@ -2,7 +2,13 @@
 -keep public abstract class ohi.andre.consolelauncher.CommandAbstraction
 -keep public class ohi.andre.consolelauncher.commands.main.**
 -keep public class ohi.andre.consolelauncher.managers.**
--keep public class ohi.andre.consolelauncher.tuils.libsuperuser.**
+
+# Keep libsu API
+-keep class com.topjohnwu.superuser.** { *; }
+-dontwarn com.topjohnwu.superuser.**
+
+
+
 -keep class ohi.andre.consolelauncher.managers.suggestions.**
 -keep public class it.andreuzzi.comparestring2.**
 
