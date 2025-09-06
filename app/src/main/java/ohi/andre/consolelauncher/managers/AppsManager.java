@@ -1,3 +1,4 @@
+// File: app/src/main/java/ohi/andre/consolelauncher/managers/AppsManager.java
 package ohi.andre.consolelauncher.managers;
 
 import android.content.BroadcastReceiver;
@@ -25,45 +26,51 @@ import java.util.regex.Pattern;
 import ohi.andre.consolelauncher.MainManager;
 import ohi.andre.consolelauncher.R;
 import ohi.andre.consolelauncher.UIManager;
-import ohi.andre.consolelauncher.commands.main.MainPack;
-
-import ohi.andre.consolelauncher.managers.xml.XMLPref;
-import ohi.andre.consolelauncher.managers.xml.XMLPrefsManager;
-import ohi.andre.consolelauncher.managers.xml.XMLPrefsElement;
-import ohi.andre.consolelauncher.managers.xml.XMLPrefsList;
-import ohi.andre.consolelauncher.managers.xml.XMLPrefsSave;
-
 import ohi.andre.consolelauncher.tuils.StoppableThread;
 import ohi.andre.consolelauncher.tuils.Tuils;
+
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsManager;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsSave;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsElement;
+import ohi.andre.consolelauncher.managers.xml.XMLPrefsList;
 
 public class AppsManager implements XMLPrefsElement {
 
     public static final int SHOWN_APPS = 10;
     public static final int HIDDEN_APPS = 11;
-
     public static final String PATH = "apps.xml";
     private final String NAME = "APPS";
+
     private File file;
-
-    private final String SHOW_ATTRIBUTE = "show";
-    private static final String APPS_SEPARATOR = ";";
     private Context context;
-
     private AppsHolder appsHolder;
     private List<LaunchInfo> hiddenApps;
 
-    private final String PREFS = "apps";
     private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
 
     public static XMLPrefsElement instance = null;
-
     private XMLPrefsList prefsList;
 
-    public List<Group> groups;                        
+    public List<Group> groups;
     private Pattern pp, pl;
     private String appInstalledFormat, appUninstalledFormat;
     private int appInstalledColor, appUninstalledColor;
+
+    private XMLPrefsSave save;
+
+    // ------------------------
+    // LaunchInfo inner class
+    // ------------------------
+    public static class LaunchInfo {
+        public String packageName;
+        public String activityName;
+
+        public LaunchInfo(String pkg, String act) {
+            packageName = pkg;
+            activityName = act;
+        }
+    }
 
     @Override
     public String[] delete() {
@@ -102,24 +109,30 @@ public class AppsManager implements XMLPrefsElement {
         instance = this;
         this.context = context;
 
-        appInstalledFormat = XMLPrefsManager.getBoolean("appInstalledFormat", "%p installed");
-        appUninstalledFormat = XMLPrefsManager.getBoolean("appUninstalledFormat", "%p uninstalled");
+        // Load XMLPrefsSave
+        File root = Tuils.getFolder();
+        File saveFile = new File(root, PATH);
+        save = XMLPrefsManager.load(saveFile);
+        if(save == null) save = new XMLPrefsSave();
+
+        // Load formats/colors from prefs
+        appInstalledFormat = XMLPrefsManager.getString(save, "appInstalledFormat", "%p installed");
+        appUninstalledFormat = XMLPrefsManager.getString(save, "appUninstalledFormat", "%p uninstalled");
+
+        appInstalledColor = XMLPrefsManager.getColor(save, "appInstalledColor", 0xFF00FF00);
+        appUninstalledColor = XMLPrefsManager.getColor(save, "appUninstalledColor", 0xFFFF0000);
 
         if (appInstalledFormat != null || appUninstalledFormat != null) {
             pp = Pattern.compile("%p", Pattern.CASE_INSENSITIVE);
             pl = Pattern.compile("%l", Pattern.CASE_INSENSITIVE);
-
-            appInstalledColor = XMLPrefsManager.getColor("appInstalledColor", 0xFF00FF00);
-            appUninstalledColor = XMLPrefsManager.getColor("appUninstalledColor", 0xFFFF0000);
         } else {
             pp = null;
             pl = null;
         }
 
-        File root = Tuils.getFolder();
-        this.file = root != null ? new File(root, PATH) : null;
+        this.file = saveFile;
 
-        this.preferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        this.preferences = context.getSharedPreferences("apps", Context.MODE_PRIVATE);
         this.editor = preferences.edit();
 
         this.groups = new ArrayList<>();
@@ -130,7 +143,7 @@ public class AppsManager implements XMLPrefsElement {
             public void run() {
                 super.run();
                 fill();
-                LocalBroadcastManager.getInstance(context).registerReceiver(appsBroadcast, new IntentFilter());
+                LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent("apps_filled"));
             }
         }.start();
     }
@@ -139,8 +152,8 @@ public class AppsManager implements XMLPrefsElement {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
         intentFilter.addDataScheme("package");
-
         c.registerReceiver(appsBroadcast, intentFilter);
     }
 
@@ -226,5 +239,14 @@ public class AppsManager implements XMLPrefsElement {
         }
 
         for (LaunchInfo i : infos) appsHolder.remove(i);
+    }
+
+    // Dummy placeholder for missing methods
+    private void resetFile(File file, String name) {
+        // implement reset logic here
+    }
+
+    private void set(File file, List<XMLPrefsElement> list) {
+        // implement save logic here
     }
 }

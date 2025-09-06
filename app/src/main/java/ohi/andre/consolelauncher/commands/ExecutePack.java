@@ -40,30 +40,36 @@ public abstract class ExecutePack {
 
     @Nullable
     public String getString() {
-        return (String) get();
+        Object obj = get();
+        return obj instanceof String ? (String) obj : null;
     }
 
     public int getInt() {
-        return (int) get();
+        Object obj = get();
+        return obj instanceof Integer ? (int) obj : 0;
     }
 
     public boolean getBoolean() {
-        return (boolean) get();
+        Object obj = get();
+        return obj instanceof Boolean && (boolean) obj;
     }
 
     @Nullable
     public ArrayList<?> getList() {
-        return (ArrayList<?>) get();
+        Object obj = get();
+        return obj instanceof ArrayList ? (ArrayList<?>) obj : null;
     }
 
     @Nullable
     public XMLPrefsSave getPrefsSave() {
-        return (XMLPrefsSave) get();
+        Object obj = get();
+        return obj instanceof XMLPrefsSave ? (XMLPrefsSave) obj : null;
     }
 
     @Nullable
     public AppsManager.LaunchInfo getLaunchInfo() {
-        return (AppsManager.LaunchInfo) get();
+        Object obj = get();
+        return obj instanceof AppsManager.LaunchInfo ? (AppsManager.LaunchInfo) obj : null;
     }
 
     public void set(Object[] args) {
