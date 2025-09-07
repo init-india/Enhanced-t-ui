@@ -1,163 +1,240 @@
-▶️ 1. List Emails
+✅ Final CLI Feature — Gmail
 
-Command: gmail +enter
 
-➔ Behavior:
+---
 
-Displays the first 20 emails from Primary category:
+▶️ 1. List Mails
 
-[1] [Unread] [12 Sept 2025 15:34] John Doe | Meeting Tomorrow
-[2] [Read] [12 Sept 2025 14:10] Amazon | Your Order Update
-[3] [Replied] [11 Sept 2025 10:45] Jane Smith | Project Status
+Command:
+
+gmail +enter
+
+Behavior:
+
+Displays first 20 mails from Primary category.
+
+Shows:
+
+Timestamp
+
+Sender Name
+
+Subject
+
+Status (Read / Unread / Replied)
+
+
+
+Scrolling:
+
+down + enter → Displays next 20 mails
+
+up + enter → Displays previous 20 mails
+
+
+
+---
+
+▶️ 2. Search Mails Dynamically
+
+Command:
+
+gmail <search-keyword>
+
+Behavior:
+
+Dynamically shows matching mails while typing (searching subject and/or sender).
+
+Lists matching mails in real time.
+
+
+
+---
+
+▶️ 3. Show Mails by Email Address
+
+Command:
+
+gmail <email-address>
+
+Behavior:
+
+Displays last 20 conversations with that email address.
+
+Scroll up/down behaves same as normal list.
+
+
+
+---
+
+▶️ 4. Universal Mail Opening
+
+Behavior:
+
+From any of the following commands:
+
+gmail +enter
+
+gmail <email-address> + enter
+
+gmail <search-keyword>
+
+
+Displayed list will include numbered mails:
+
+1. [Unread] From: John Doe | Subject: Meeting Reminder | Timestamp
+2. [Read] From: Jane Smith | Subject: Monthly Report | Timestamp
 ...
 
-Supports scrolling:
+User selects a mail by number to open full view:
 
-down → Next 20 emails
+3 + enter
 
-up → Previous 20 emails
+Displays full mail:
+
+To
+
+From
+
+CC
+
+Subject
+
+Timestamp
+
+Body
+
+
+After opening a mail, user can:
+
+reply + enter → Opens editable reply mode (To, CC, Subject, Body editable).
+
+replyall + enter → Opens editable reply-all mode.
+
+exit + enter → Returns to normal CLI.
+
+
+
+---
+
+▶️ 5. Compose New Mail
+
+Command:
+
+gnew
+
+Behavior:
+
+Opens editable form:
+
+To (email address)
+
+CC (optional)
+
+Subject
+
+Body
+
+
+Options:
+
+send + enter → Sends mail.
+
+draft + enter → Saves to drafts.
+
+exit + enter → Exits without saving.
 
 
 
 
 ---
 
-▶️ 2. Dynamic Search
+▶️ 6. Manage Drafts
 
-Command: gmail +<search-term>
+Command:
 
-➔ Behavior:
+gdraft
 
-Dynamically updates and displays search results as user types.
+Behavior:
 
-Matching results:
-[1] [Unread] [12 Sept 2025 15:34] John Doe | Meeting Tomorrow
-[2] [Read] [10 Sept 2025 09:20] Marketing | Newsletter Update
-...
+Shows list of drafts with timestamp, subject.
 
+Select draft by number → Editable form appears (To, CC, Subject, Body).
 
+send + enter → Sends mail.
 
----
+draft + enter → Saves changes as draft.
 
-▶️ 3. List Emails by Contact
+exit + enter → Returns to draft list without changes.
 
-Command: gmail +john@example.com +enter
-
-➔ Behavior:
-
-Shows all emails from that contact:
-
-[1] [Unread] [12 Sept 2025 15:34] John Doe | Meeting Tomorrow
-[2] [Read] [11 Sept 2025 10:45] John Doe | Follow-up
-...
-
-Supports scrolling via up/down.
 
 
 
 ---
 
-▶️ 4. Open and Read an Email
+▶️ 7. Delete Mails (Dedicated Command)
 
-Command: gmail open <index> (e.g., gmail open 1)
+Command:
 
-➔ Displays full email:
+gdel
 
-From: John Doe <john@example.com>
-To: me@example.com
-Subject: Meeting Tomorrow
-Date: 12 Sept 2025 15:34
+Behavior:
 
-[Body content here...]
+Supports deletion by:
 
-[Options]: reply | replyall | delete | save_draft | exit
+gdel <search-keyword>
 
-
----
-
-▶️ 5. Reply or Reply All Flow
-
-Command: reply or replyall
+gdel <email-address> + enter
 
 
-➔ Behavior:
+Displays numbered list of mails to delete.
 
-Enters editable mode:
+Options:
 
-To: john@example.com
-CC: 
-Subject: Meeting Tomorrow
-Body:
-[Editable]
+Delete All → Deletes all mails in list.
 
-Options: send | save_draft | cancel
+Delete Range → Example:
+1-5,7,10 → Deletes mails 1 to 5, 7, and 10.
+
+
+Requires explicit confirmation before deletion.
 
 
 
 ---
 
-▶️ 6. Compose New Email
+▶️ 8. Reply / Reply All Flow
 
-Command: gmail compose
+Behavior:
 
-➔ Behavior:
+When reading a mail:
 
-CLI prompts for:
+User types:
 
-To: <type>
-CC: <type>
-Subject: <type>
-Body:
-[Editable]
+reply + enter
 
-Options: send | save_draft | cancel
+replyall + enter
 
 
 
----
+Both open fully editable form:
 
-▶️ 7. Drafts Management
+To (editable)
 
-Command: gdraft +enter
+CC (editable)
 
-➔ Displays:
+Subject (editable)
 
-[1] [Draft] [10 Sept 2025 12:30] Jane Smith | Follow-up
-[2] [Draft] [11 Sept 2025 09:15] Amazon | Order Question
-...
-
-Open Draft: gdraft 1 → Opens editable draft view.
+Body (editable)
 
 
-➔ Editable Mode:
+Options:
 
-To: jane@example.com
-CC: 
-Subject: Follow-up
-Body:
-[Editable]
+send + enter → Sends mail.
 
-Options: send | save_draft | cancel
+draft + enter → Saves as draft.
 
-
----
-
-▶️ 8. Delete Emails
-
-Command: gdel +<search-term> or gdel +email@example.com
-
-➔ Behavior:
-
-Displays matched emails with indices.
-
-User selects deletion mode:
-
-all → Delete all displayed emails.
-
-range → Enter ranges: e.g., 1-3,5,7-9.
-
-
-Confirmation prompt before deletion.
+exit + enter → Returns to mail view.
 
 
 
@@ -165,47 +242,26 @@ Confirmation prompt before deletion.
 
 ▶️ 9. Exit Gmail CLI
 
-Command: exit
+At any point (list, reading, composing, replying, drafts):
 
-➔ Behavior:
+exit + enter
 
-Returns to normal CLI.
-
-
-
----
-
-⚡ Security
-
-Biometric authentication mandatory for sending or saving drafts.
-
-Data privacy respected.
-
+→ Returns to normal CLI prompt.
 
 
 ---
 
-🌟 Example Workflow
+⚡ Universal Features
 
-1. gmail +enter
+Scroll Up / Down works universally (mails list, search results, drafts).
 
+Clear numbered interface for easy selection of mails.
 
-2. Displays first 20 mails.
+Dynamic suggestions during typing (email addresses, subjects).
 
+Explicit confirmation before deleting mails.
 
-3. gmail open 1
+Consistent user prompts at every stage for clarity.
 
+Safe and user-friendly flow, preventing accidental actions.
 
-4. Reads full email.
-
-
-5. Types reply
-
-
-6. Edits subject/body if needed.
-
-
-7. Selects send.
-
-
-8. Confirmation → Sends mail securely.

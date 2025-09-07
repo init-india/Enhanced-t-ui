@@ -141,3 +141,4 @@ Action: Removes participant from conference.
 
 CLI alert + log entry whenever a call is missed.
 
+8. endcall terminates all calls
