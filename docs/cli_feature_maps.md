@@ -1,174 +1,185 @@
-Map CLI Flow – Refined with POIs
+✅ Final CLI Flow — Maps
 
 
 ---
 
-1. Current Location
+▶️ 1. Show Current Location & History
 
-Command:
+map +enter
 
-map + enter
+➔ Behavior:
 
-Behavior:
+Displays:
 
-Shows current location with timestamp.
+Current location (address, coordinates).
 
-Lists last 10 searched/saved destinations.
+Last 10 locations searched (with timestamp).
 
 
-Example:
+If Location Service is OFF → Prompt:
+➔ "Location service is OFF. Enable it? (yes/no)"
 
-[03 Sept 2025 | 22:46] Current Location: MG Road, Bengaluru
-Recent Locations:
-1. Electronic City
-2. Airport Terminal 2
-3. Whitefield
-4. HSR Layout
-5. Hebbal
-...
+If yes → Enable location.
+
+If no → Exit command.
+
+
 
 
 ---
 
-2. Quick Destination (Default: Current Location → Destination)
-
-Command:
+▶️ 2. Preview Route from Current Location to Destination
 
 map <destination>
 
-Behavior:
+➔ Behavior:
 
-From = Current Location
+Realtime suggestions while typing destination name.
 
-To = Destination typed
+Displays route preview:
 
-Shows route preview (same format as maproute).
+Distance
 
-Asks if user wants to start navigation (yes/no).
+ETA
 
+Traffic status
 
-Example:
+Toll information
 
-map Electronic City
-Route Preview: MG Road → Electronic City
-Distance: 12.3 km | ETA: 28 mins
-Traffic: 🚨 Heavy congestion on Hosur Rd
-Tolls: 2 (₹60 approx.)
-Via: Hosur Road
-Alternatives:
-1. NICE Road → 14.8 km | 30 mins | Toll ₹80
-2. Residency Rd → 13.5 km | 35 mins | No toll
-Nearby POIs:
-- Fuel: Shell Fuel Station (3.5 km)
-- Restaurant: Barbeque Nation (2.1 km)
-- Hospital: Apollo Clinic (4.2 km)
-
-Do you want to navigate? (yes/no)
+Fuel stations / Restaurants / Hospitals along the route.
 
 
----
+If Location Service is OFF → Prompt to enable.
 
-3. Custom Route (Any Source → Destination)
+If no Internet or Location OFF → Use offline maps if available.
 
-Command:
+Asks:
+➔ "Do you want to start navigation? (yes/no)"
 
-maproute <from> <to>
+If yes → Internally converts to mapnav <current-location> <destination>.
 
-Behavior:
-
-Previews route info for any source → destination.
-
-Shows distance, ETA, traffic, tolls, alternatives.
-
-Adds nearby POIs (fuel stations, restaurants, hospitals).
-
-Asks user if navigation should start.
+If no → Stay in preview mode.
 
 
-Example:
-
-maproute Whitefield Airport T2
-Route Preview: Whitefield → Airport Terminal 2
-Distance: 41.6 km | ETA: 1 hr 12 mins
-Traffic: ⚠ Moderate congestion
-Tolls: 3 (₹180 approx.)
-Via: ORR + Airport Rd
-Alternatives:
-1. KR Puram → 45.0 km | 1 hr 20 mins | No toll
-2. Hebbal → 40.5 km | 1 hr 18 mins | Toll ₹200
-Nearby POIs:
-- Fuel: Indian Oil (2.8 km from route)
-- Restaurant: McDonalds (Airport Rd, 5.3 km)
-- Hospital: Columbia Asia (Hebbal, 7.2 km)
-
-Do you want to navigate? (yes/no)
 
 
 ---
 
-4. Start Navigation
+▶️ 3. Preview Route from Any Source to Any Destination
 
-Command:
+maproute <from-location> <to-location>
 
-mapnav <from> <to>
+➔ Behavior:
 
-Behavior:
+Realtime suggestions while typing both locations.
 
-Starts live navigation.
+Displays route preview:
 
-CLI shows:
+Distance
 
-Next turn instruction
+ETA
 
-ETA & distance left
+Traffic status
 
-Toll info
+Toll information
+
+Fuel stations / Restaurants / Hospitals.
 
 
-Voice guidance auto-starts.
+If Location Service is OFF → Prompt to enable.
+
+If no Internet or Location OFF → Use offline maps if available.
+
+Asks:
+➔ "Do you want to start navigation? (yes/no)"
+
+If yes → Internally converts to mapnav <from-location> <to-location>.
+
+If no → Stay in preview mode.
 
 
-Example:
-
-Navigation Started: MG Road → Electronic City
-Next: In 500m, turn right onto Brigade Rd
-ETA: 28 mins | Distance left: 11.8 km | Tolls: 2
 
 
 ---
 
-5. Optional Commands (During Preview/Navigation)
+▶️ 4. Start Realtime Navigation
 
-Show traffic details:
+mapnav <from-location> <to-location>
 
+➔ Behavior:
+
+Starts realtime voice + CLI step-by-step navigation.
+
+Displays live updates:
+
+Next turn
+
+Distance to next turn
+
+ETA
+
+Tolls on route
+
+Nearby Fuel Stations / Restaurants / Hospitals.
+
+
+Ends automatically when destination is reached.
+
+Offline navigation supported if no internet.
+
+
+
+---
+
+▶️ 5. Share Current Location
+
+mapshare <contact-number>
+
+➔ Behavior:
+
+Asks:
+➔ Select sharing method:
+
+SMS
+
+WhatsApp
+
+Email
+
+
+Requires biometric authentication.
+
+Sends location as link or coordinates.
+
+
+
+---
+
+▶️ 6. Info Commands During Preview / Navigation
 
 maptraffic
 
-Show alternative routes:
-
+➔ Displays live traffic status on route.
 
 mapalt
 
-Show step-by-step directions:
-
+➔ Shows top 3 alternative routes.
 
 mapsteps
+
+➔ Displays detailed step-by-step directions.
 
 
 ---
 
-6. Share Location
+⚡ Security & Constraints
 
-Command:
+Location Service must be ON; prompts to enable if OFF.
 
-mapshare <contact/number>
+Offline maps fallback used when no internet.
 
-Behavior:
+Biometric authentication mandatory for sharing location.
 
-Biometric authentication required.
+Navigation ends automatically upon reaching destination.
 
-Choose method:
-1️⃣ SMS
-2️⃣ WhatsApp
-3️⃣ Email
-
+No mapresume; navigation is stateless.
