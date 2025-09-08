@@ -1,149 +1,205 @@
-Hotspot
+CLI System Settings Technical Design
 
-Displays current hotspot status (On/Off).
+1. Hotspot
 
-If Hotspot is Off:
+Command: hotspot + enter
 
-Prompt: Hotspot is Off. Type 'on' to enable or 'exit' to return.
+Flow:
 
-
-If Hotspot is On:
-
-Display:
-
-Hotspot Status: ON  
-Connected devices:  
-1. Device A  
-2. Device B  
-...
-
-Prompt: Type 'off' to disable hotspot or 'exit' to return.
+Displays Hotspot Status: On or Off.
 
 
+Case: Hotspot is Off
 
+Hotspot Status: Off
+1. Turn On Hotspot
+2. Exit
+Enter option: 1
+→ Hotspot turned On.
 
----
+Case: Hotspot is On
 
-🌐 WiFi
+Hotspot Status: On
+Connected Devices:
+1. Device A
+2. Device B
+3. Device C
 
-Displays current WiFi status (On/Off).
-
-If WiFi is Off:
-
-Prompt: WiFi is Off. Type 'on' to enable or 'exit' to return.
-
-
-If WiFi is On:
-
-Display:
-
-WiFi Status: ON  
-Available networks:  
-1. NetworkA  
-2. NetworkB  
-3. NetworkC  
-...
-
-Prompt:
-Select network by typing number (e.g., '1') or type 'off' to disable WiFi or 'exit' to return.
-
-Upon selecting network:
-
-Prompt: Enter password for 'NetworkA': 
-
-On correct password, display: Connected to NetworkA.
-
-
-
+Options:
+1. Turn Off Hotspot
+2. Exit
+Enter option: 1
+→ Hotspot turned Off.
 
 
 ---
 
-🔊 Bluetooth
+2. WiFi
 
-Displays current Bluetooth status (On/Off).
+Command: wifi + enter
 
-If Bluetooth is Off:
+Flow:
 
-Prompt: Bluetooth is Off. Type 'on' to enable or 'exit' to return.
-
-
-If Bluetooth is On:
-
-Display:
-
-Bluetooth Status: ON  
-Available devices:  
-1. DeviceX  
-2. DeviceY  
-3. DeviceZ  
-...
-
-Prompt:
-Select device by typing number (e.g., '1') or type 'off' to disable Bluetooth or 'exit' to return.
-
-Upon selecting device:
-
-Prompt: Enter pairing password for 'DeviceX': 
-
-On correct password, display: Paired with DeviceX.
+Displays WiFi Status: On or Off.
 
 
+Case: WiFi is Off
 
+WiFi Status: Off
+1. Turn On WiFi
+2. Exit
+Enter option: 1
+→ WiFi turned On.
 
+Case: WiFi is On
 
----
+WiFi Status: On
+Available Networks:
+1. Network_A (Secured)
+2. Network_B (Open)
+3. Network_C (Secured)
 
-📍 Location
+Options:
+Select network number to connect or 0 to Exit: 1
+→ Enter password: ********
+→ Connected to Network_A.
 
-Displays current status (On/Off).
-
-Prompt:
-
-If On: Type 'off' to disable location services or 'exit' to return.
-
-If Off: Type 'on' to enable location services or 'exit' to return.
-
-
+1. Turn Off WiFi
+2. Exit
+Enter option: 1
+→ WiFi turned Off.
 
 
 ---
 
-💡 Brightness
+3. Bluetooth
 
-Prompt: Type 'adaptive' for automatic brightness or enter percentage (0-100): 
+Command: bluetooth + enter
 
-Example input: adaptive or 75
+Flow:
 
-On valid input, display: Brightness set successfully.
+Displays Bluetooth Status: On or Off.
 
+
+Case: Bluetooth is Off
+
+Bluetooth Status: Off
+1. Turn On Bluetooth
+2. Exit
+Enter option: 1
+→ Bluetooth turned On.
+
+Case: Bluetooth is On
+
+Bluetooth Status: On
+Available Devices:
+1. Device_X
+2. Device_Y
+3. Device_Z
+
+Options:
+Select device number to pair or 0 to Exit: 1
+→ Enter password: ********
+→ Paired with Device_X.
+
+1. Turn Off Bluetooth
+2. Exit
+Enter option: 1
+→ Bluetooth turned Off.
 
 
 ---
 
-🔊 Volume
+4. Location
 
-Prompt: Enter volume percentage (0-100): 
+Command: location + enter
 
-On valid input, display: Volume set to XX%.
+Flow:
 
+Current Location Status: On
+1. Turn Off Location
+2. Exit
+Enter option: 1
+→ Location turned Off.
+
+Or, if Location was Off:
+
+Current Location Status: Off
+1. Turn On Location
+2. Exit
+Enter option: 1
+→ Location turned On.
 
 
 ---
 
-⚡ Power Options
+5. Brightness
 
-poweroff: Prompt: Are you sure you want to power off? (yes/no): 
+Command: brightness + enter
 
-On 'yes': System powers off.
+Flow:
 
-On 'no': Returns to settings menu.
+Set Brightness:
+1. Adaptive
+2. Enter Percentage
+3. Exit
+Enter option: 2
+→ Enter brightness percentage (0-100): 70
+→ Brightness set to 70%.
 
 
-restart: Prompt: Are you sure you want to restart? (yes/no): 
+---
 
-On 'yes': System restarts.
+6. Volume
 
-On 'no': Returns to settings menu.
+Command: volume + enter
+
+Flow:
+
+Set Volume:
+1. Notification Volume
+2. Alarm Volume
+3. In-Call Volume
+4. Media Volume
+5. Ring Volume
+6. SMS Volume
+7. Exit
+
+Enter option (1-7): 1
+→ Enter volume percentage (0-100): 80
+→ Notification Volume set to 80%.
 
 
+---
+
+7. Power Off
+
+Command: poweroff + enter
+
+Flow:
+
+Are you sure you want to power off? (yes/no): yes
+→ System powering off...
+
+
+---
+
+8. Restart
+
+Command: restart + enter
+
+Flow:
+
+Are you sure you want to restart? (yes/no): yes
+→ System restarting...
+
+
+---
+
+Exit System Settings
+
+Command: exit + enter
+
+Flow:
+
+Returning to main CLI.
