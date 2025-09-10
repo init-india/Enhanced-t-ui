@@ -86,18 +86,15 @@
         <!-- 🔹 Notification Services -->
         <service
             android:name=".managers.notifications.NotificationService"
-            android:exported="true"
-            tools:replace="android:exported"/>
+            android:exported="true"/>
 
         <service
             android:name=".managers.notifications.KeeperService"
-            android:exported="true"
-            tools:replace="android:exported"/>
+            android:exported="true"/>
 
         <service
             android:name=".managers.notifications.NotificationMonitorService"
-            android:exported="true"
-            tools:replace="android:exported"/>
+            android:exported="true"/>
 
     </application>
 </manifest>

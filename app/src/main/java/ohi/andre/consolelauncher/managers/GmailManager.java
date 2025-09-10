@@ -10,6 +10,10 @@ import java.util.Scanner;
 
 import ohi.andre.consolelauncher.tuils.Tuils;
 
+package ohi.andre.consolelauncher.commands.main.specific;
+
+import ohi.andre.consolelauncher.commands.CommandAbstraction;
+import ohi.andre.consolelauncher.commands.ExecutePack;
 public class GmailManager {
 
     private final Context context;

@@ -20,6 +20,9 @@ import java.util.Map;
 import ohi.andre.consolelauncher.receivers.SmsReceiver;
 import ohi.andre.consolelauncher.tuils.Tuils;
 
+import ohi.andre.consolelauncher.commands.CommandAbst;
+import ohi.andre.consolelauncher.commands.ExecutePack;
+
 /**
  * Manager for handling SMS:
  * - Sending SMS
