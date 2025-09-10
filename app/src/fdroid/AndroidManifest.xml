@@ -44,24 +44,19 @@
         <!-- Services -->
         <service
             android:name="ohi.andre.consolelauncher.managers.notifications.NotificationMonitorService"
-            android:exported="true"
-            tools:replace="android:exported"/>
+            android:exported="true"/>
 
         <service
             android:name="ohi.andre.consolelauncher.services.NotificationListener"
             android:exported="true"
-            tools:replace="android:exported"/>
-
         <!-- Device Admin Receiver -->
         <receiver
             android:name="ohi.andre.consolelauncher.DeviceAdminReceiver"
             android:permission="android.permission.BIND_DEVICE_ADMIN"
             android:exported="true"
-            tools:replace="android:exported">
             <meta-data
                 android:name="android.app.device_admin"
-                android:resource="@xml/device_admin_receiver"
-                tools:replace="android:resource"/>
+                android:resource="@xml/device_admin_receiver"/>
             <intent-filter>
                 <action android:name="android.app.action.DEVICE_ADMIN_ENABLED"/>
             </intent-filter>
@@ -72,7 +67,6 @@
             android:name="ohi.andre.consolelauncher.BootReceiver"
             android:enabled="true"
             android:exported="true"
-            tools:replace="android:exported">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
@@ -82,8 +76,7 @@
         <receiver
             android:name="ohi.andre.consolelauncher.receivers.CallReceiver"
             android:enabled="true"
-            android:exported="true"
-            tools:replace="android:exported">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE"/>
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL"/>
@@ -93,8 +86,7 @@
         <receiver
             android:name="ohi.andre.consolelauncher.receivers.SmsReceiver"
             android:enabled="true"
-            android:exported="true"
-            tools:replace="android:exported">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
                 <category android:name="android.intent.category.DEFAULT"/>
